@@ -2,7 +2,6 @@
   /brief Platform-dependent function to handle serial port.
   */
 #include "stm32_io_pc.hpp"
-#include <iostream>
 HANDLE Stm32Io::m_handle;
 /*!
  * Function: init 
@@ -22,6 +21,30 @@ Stm32BootClient::ErrorCode Stm32Io::init() {
         );
     result = ( m_handle == INVALID_HANDLE_VALUE ) ? Stm32BootClient::ErrorCode::SERIAL_OPEN :
         Stm32BootClient::ErrorCode::OK;
+    if (result == Stm32BootClient::ErrorCode::OK) {
+        DCB dcbSerialConfig = {0};
+        dcbSerialConfig.DCBlength = sizeof( dcbSerialConfig );
+        BOOL status = GetCommState(m_handle, &dcbSerialConfig);
+        result = ( status == 0 ) ? Stm32BootClient::ErrorCode::FAILED : Stm32BootClient::ErrorCode::OK;
+        if (result == Stm32BootClient::ErrorCode::OK) {
+            dcbSerialConfig.BaudRate = CBR_115200;
+            dcbSerialConfig.ByteSize = 8;
+            dcbSerialConfig.StopBits = ONESTOPBIT;
+            dcbSerialConfig.Parity = EVENPARITY;
+            status = SetCommState(m_handle, &dcbSerialConfig);
+            result = ( status == 0 ) ? Stm32BootClient::ErrorCode::FAILED : Stm32BootClient::ErrorCode::OK;
+            if (result == Stm32BootClient::ErrorCode::OK) {
+                COMMTIMEOUTS timeouts = {};
+                timeouts.ReadIntervalTimeout = 50; // in milliseconds
+                timeouts.ReadTotalTimeoutConstant = 50; // in milliseconds
+                timeouts.ReadTotalTimeoutMultiplier = 10; // in milliseconds
+                timeouts.WriteTotalTimeoutConstant = 50; // in milliseconds
+                timeouts.WriteTotalTimeoutMultiplier = 10; // in milliseconds
+                status = SetCommTimeouts(m_handle, &timeouts);
+                result = ( status == 0 ) ? Stm32BootClient::ErrorCode::FAILED : Stm32BootClient::ErrorCode::OK;
+            }
+        }
+    }
     return result;
 }
 /*!

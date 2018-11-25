@@ -40,7 +40,6 @@ Stm32BootClient::ErrorCode Stm32BootClient::checkMcuPresence() {
     }
     return result;
 }
-#include <iostream>
 std::string Stm32BootClient::errorCode2String( ErrorCode _errcode ) {
     std::string msgs[] = {
         "OK",
@@ -48,7 +47,6 @@ std::string Stm32BootClient::errorCode2String( ErrorCode _errcode ) {
         "ACK has been received",
         "No ACK received"};
     int idx = static_cast<int>(_errcode);
-    std::cout << "idx " << idx << ", sizof " << ARRAY_SIZE(msgs) << std::endl;
     configASSERT(idx < ARRAY_SIZE(msgs));
     return msgs[idx];
 }
