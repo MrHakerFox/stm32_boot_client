@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="1">
+    <builddir>stm32_factory_client-cppcheck-build-dir</builddir>
+    <platform>Unspecified</platform>
+    <analyze-all-vs-configs>true</analyze-all-vs-configs>
+    <includedir>
+        <dir name="E:/My/Projects/LAB/Software/boots/stm32_factory_client/"/>
+    </includedir>
+    <paths>
+        <dir name="E:/My/Projects/LAB/Software/boots/stm32_factory_client"/>
+    </paths>
+</project>
