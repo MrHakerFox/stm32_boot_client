@@ -24,7 +24,7 @@ Stm32BootClient::ErrorCode Stm32BootClient::init() {
  */
 Stm32BootClient::ErrorCode Stm32BootClient::checkMcuPresence() {
     ErrorCode result;
-    uint8_t txbuff[] = {ACK_CODE};
+    uint8_t txbuff[] = {ACK_ASK_CODE};
     size_t writtern;
     Stm32Io::setBootLine(true);
     ResetMCU();
@@ -62,7 +62,29 @@ void Stm32BootClient::ResetMCU() {
     Stm32Io::delayMs(100);
     Stm32Io::setResetLine(true);
 }
+Stm32BootClient::ErrorCode Stm32BootClient::getInfo() {
+    ErrorCode err = commandGet();
+    return err;
+}
 Stm32BootClient::ErrorCode Stm32BootClient::commandGet() {
-    uint8_t txBuff[] = { Command::Get};
+    ErrorCode err;
+    size_t written;
+    uint8_t txBuff[] = { static_cast<uint8_t>(Command::Get), static_cast<uint8_t>(~( static_cast<uint8_t>(Command::Get) ))};
+    err = Stm32Io::write(txBuff, sizeof( txBuff ), &written);
+    if (err == ErrorCode::OK) {
+        err = ( written == sizeof( txBuff ) ) ? ErrorCode::OK : ErrorCode::FAILED;
+        if (err == ErrorCode::OK) {
+            size_t rd;
+            uint8_t ackCode;
+            err = Stm32Io::read(&ackCode, sizeof( ackCode ), &rd);
+            if (err == ErrorCode::OK) {
+                err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::FAILED;
+                if (err == ErrorCode::OK) {
+                    err = ( ackCode == ACK_RESP_CODE ) ? ErrorCode::ACK_OK : ErrorCode::ACK_FAILED;
+                }
+            }
+        }
+    }
+    return err;
 }
 

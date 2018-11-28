@@ -17,6 +17,9 @@ int tryDetectMcu( Stm32BootClient::McuType &_mcy ) {
         std::cout << "No MCU found!" << std::endl;
     } else {
         std::cout << "OK! Some MCU found, try to found out type." << std::endl;
+        std::cout << "Get MCU's information...";
+        err = Stm32BootClient::instance()->getInfo();
+        std::cout << Stm32BootClient::errorCode2String(err) << std::endl;
     }
     return ( err == Stm32BootClient::ErrorCode::OK ) ? 0 : -1;
 }
