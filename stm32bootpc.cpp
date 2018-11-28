@@ -1,6 +1,9 @@
 #include "stm32bootpc.hpp"
 #include <iostream>
 Settings_t parseCommandLine( int argc, char * argv[] ) {
+    /// TODO Add code
+    (void)argc;
+    (void)( argv );
     return Settings_t();
 }
 int tryDetectMcu( Stm32BootClient::McuType &_mcy ) {
