@@ -62,5 +62,7 @@ void Stm32BootClient::ResetMCU() {
     Stm32Io::delayMs(100);
     Stm32Io::setResetLine(true);
 }
-//Stm32BootClient::ErrorCode Stm32BootClient::commandGet() {}
+Stm32BootClient::ErrorCode Stm32BootClient::commandGet() {
+    uint8_t txBuff[] = { Command::Get};
+}
 

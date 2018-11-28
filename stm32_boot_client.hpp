@@ -15,6 +15,9 @@ public:
         ACK_FAILED = 0x03,          /// ACK has not been received, no MCU connected???
         SERIAL_CANT_OPEN = 0x04,    /// Can't open serial port
     };
+    enum class Command : uint8_t {
+        Get = 0x00                  /// Get the version and allowed commands
+    };
     static Stm32BootClient * instance() {
         static Stm32BootClient * __self = new Stm32BootClient;
         return __self;
