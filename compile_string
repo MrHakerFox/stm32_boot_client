@@ -1,0 +1,1 @@
+g++ -Wall -o stm32bootpc.exe -pedantic -pedantic-errors -ansi -std=c++11 -Werror -Wextra -Wconversion -Winit-self -Wunreachable-code -Wstrict-overflow=5 -Wshadow -Wcast-qual -Wcast-align  stm32_boot_client.cpp stm32_io_pc.cpp stm32bootpc.cpp

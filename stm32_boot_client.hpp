@@ -9,11 +9,11 @@ public:
         Stm32F051 = 1
     };
     enum class ErrorCode : uint8_t {
-        OK = 0x00,          /// No errors
-        FAILED = 0x01,       /// General error without clarification
-        ACK_OK = 0x02,      /// ACK has been received
-        ACK_FAILED = 0x03,  /// ACK has not been received, no MCU connected???
-        SERIAL_OPEN = 0x04, /// Can't open serial port
+        OK = 0x00,                  /// No errors
+        FAILED = 0x01,              /// General error without clarification
+        ACK_OK = 0x02,              /// ACK has been received
+        ACK_FAILED = 0x03,          /// ACK has not been received, no MCU connected???
+        SERIAL_CANT_OPEN = 0x04,    /// Can't open serial port
     };
     static Stm32BootClient * instance() {
         static Stm32BootClient * __self = new Stm32BootClient;

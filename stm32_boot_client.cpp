@@ -28,10 +28,10 @@ Stm32BootClient::ErrorCode Stm32BootClient::checkMcuPresence() {
         result = ( writtern == sizeof( txbuff ) ) ? ErrorCode::OK : ErrorCode::FAILED;
         if (result == ErrorCode::OK) {
             uint8_t rxbuff[1] = {0};
-            size_t read;
-            result = Stm32Io::read(rxbuff, sizeof( rxbuff ), &read);
+            size_t count;
+            result = Stm32Io::read(rxbuff, sizeof( rxbuff ), &count);
             if (result == ErrorCode::OK) {
-                result = ( read == sizeof( rxbuff ) ) ? ErrorCode::OK : ErrorCode::FAILED;
+                result = ( count == sizeof( rxbuff ) ) ? ErrorCode::OK : ErrorCode::FAILED;
                 if (result == ErrorCode::OK) {
                     result = ( rxbuff[0] == ACK_RESP_CODE ) ? ErrorCode::ACK_OK : ErrorCode::ACK_FAILED;
                 }
@@ -43,10 +43,12 @@ Stm32BootClient::ErrorCode Stm32BootClient::checkMcuPresence() {
 std::string Stm32BootClient::errorCode2String( ErrorCode _errcode ) {
     std::string msgs[] = {
         "OK",
-        "Error",
+        "Generic Error",
         "ACK has been received",
-        "No ACK received"};
-    int idx = static_cast<int>(_errcode);
+        "No ACK received",
+        "Can't open serial port"
+    };
+    size_t idx = static_cast<int>(_errcode);
     configASSERT(idx < ARRAY_SIZE(msgs));
     return msgs[idx];
 }

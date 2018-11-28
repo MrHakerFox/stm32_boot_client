@@ -12,17 +12,17 @@ HANDLE Stm32Io::m_handle;
 Stm32BootClient::ErrorCode Stm32Io::init() {
     Stm32BootClient::ErrorCode result;
     m_handle = CreateFile(
-        "\\\\.\\COM1",
+        "\\\\.\\COM3",
         GENERIC_READ | GENERIC_WRITE,
         0, NULL,
         OPEN_EXISTING,
         0,
         NULL
         );
-    result = ( m_handle == INVALID_HANDLE_VALUE ) ? Stm32BootClient::ErrorCode::SERIAL_OPEN :
+    result = ( m_handle == INVALID_HANDLE_VALUE ) ? Stm32BootClient::ErrorCode::SERIAL_CANT_OPEN :
         Stm32BootClient::ErrorCode::OK;
     if (result == Stm32BootClient::ErrorCode::OK) {
-        DCB dcbSerialConfig = {0};
+        DCB dcbSerialConfig;
         dcbSerialConfig.DCBlength = sizeof( dcbSerialConfig );
         BOOL status = GetCommState(m_handle, &dcbSerialConfig);
         result = ( status == 0 ) ? Stm32BootClient::ErrorCode::FAILED : Stm32BootClient::ErrorCode::OK;
@@ -57,7 +57,21 @@ Stm32BootClient::ErrorCode Stm32Io::init() {
  * 
  * @return Stm32BootClient::ErrorCode 
  */
-Stm32BootClient::ErrorCode Stm32Io::write( const void * _src, size_t _size, size_t * _written ) {}
+Stm32BootClient::ErrorCode Stm32Io::write( const void * _src, size_t _size, size_t * _written ) {
+    DWORD written;
+    BOOL status = WriteFile(
+        m_handle,
+        _src,
+        _size,
+        reinterpret_cast<LPDWORD>(&written),
+        NULL
+        );
+    if (_written)
+        *_written = written;
+
+    Stm32BootClient::ErrorCode result = ( status == 0 ) ? Stm32BootClient::ErrorCode::FAILED : Stm32BootClient::ErrorCode::OK;
+    return result;
+}
 /*!
  * Function: read 
  * Read data from serial port.
@@ -68,7 +82,16 @@ Stm32BootClient::ErrorCode Stm32Io::write( const void * _src, size_t _size, size
  * 
  * @return Stm32BootClient::ErrorCode 
  */
-Stm32BootClient::ErrorCode Stm32Io::read( void * _dst, size_t _size, size_t * _read ) {}
+Stm32BootClient::ErrorCode Stm32Io::read( void * _dst, size_t _size, size_t * _read ) {
+    BOOL status = ReadFile(
+        m_handle,
+        _dst,
+        _size,
+        reinterpret_cast<LPDWORD>(_read),
+        NULL);
+    Stm32BootClient::ErrorCode result = ( status == 0 ) ? Stm32BootClient::ErrorCode::FAILED : Stm32BootClient::ErrorCode::OK;
+    return result;
+}
 /*!
  * Function: deinit 
  * Deinitializes serial port.
@@ -102,5 +125,7 @@ void Stm32Io::setBootLine( bool _level ) {
  * 
  * @param _delay how many ms to wait.
  */
-void Stm32Io::delayMs( size_t _delay ) {}
+void Stm32Io::delayMs( size_t _delay ) {
+    Sleep(_delay);
+}
 
