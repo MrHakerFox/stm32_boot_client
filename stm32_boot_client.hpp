@@ -19,8 +19,8 @@ public:
         static Stm32BootClient * __self = new Stm32BootClient;
         return __self;
     }
-    ErrorCode init();
-    ErrorCode checkMcuPresence();
+    static ErrorCode init();
+    static ErrorCode checkMcuPresence();
     static std::string errorCode2String( ErrorCode _errcode );
 protected:
 private:
