@@ -1,3 +1,6 @@
+/*! 
+  /brief This file contains all needed algorithms to operate with in-build STM32 bootloaders.
+  */
 #include "stm32_boot_client.hpp"
 #include "stm32_io_pc.hpp"
 /*!
@@ -59,4 +62,5 @@ void Stm32BootClient::ResetMCU() {
     Stm32Io::delayMs(100);
     Stm32Io::setResetLine(true);
 }
+//Stm32BootClient::ErrorCode Stm32BootClient::commandGet() {}
 

@@ -23,10 +23,12 @@ public:
     static ErrorCode checkMcuPresence();
     static std::string errorCode2String( ErrorCode _errcode );
     static void ResetMCU();
+    ErrorCode commandGet();
 protected:
 private:
     static const uint8_t ACK_CODE = 0x7f;
     static const uint8_t ACK_RESP_CODE = 0x79;
+    static const uint8_t NACK_CODE = 0x1f;
     static const size_t BOOT_READY_DELAY = 777;
 };
 #endif

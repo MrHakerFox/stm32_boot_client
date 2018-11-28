@@ -120,8 +120,12 @@ void Stm32Io::setResetLine( bool _level ) {
  * @param _level true - high level, false - low level;
  */
 void Stm32Io::setBootLine( bool _level ) {
-    (void)_level;
-    /// For pc do nothing
+    if (_level) {
+        std::cout << "Set BOOT0 to high, reset MCU, press ENTER...";
+    } else {
+        std::cout << "Set BOOT0 to low, reset MCU, press ENTER...";
+    }
+    std::cin.get();
 }
 /*!
  * Function: delayMs 

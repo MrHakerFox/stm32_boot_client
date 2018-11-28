@@ -30,7 +30,6 @@ int main( int argc, char * argv[] ) {
     Settings_t settings;
     int result = 0;
     std::cout << "STM32F0(1,2,3,4) bootloader client software.\n";
-
     result = initBootLoader();
     if (result == 0) {
         if (argc > 1) {
