@@ -7,6 +7,8 @@ Settings_t parseCommandLine( int argc, char * argv[] ) {
     return Settings_t();
 }
 int tryDetectMcu( Stm32BootClient::McuType &_mcy ) {
+    /// TODO Fixe this
+    (void)_mcy;
     std::cout << "Try to detect MCU.\n";
     std::cout << "Try to find any MCU at first...";
     Stm32BootClient::ErrorCode err = Stm32BootClient::instance()->checkMcuPresence();

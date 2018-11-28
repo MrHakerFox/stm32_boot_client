@@ -4,6 +4,7 @@
 #include <windows.h>
 #include <stdio.h>
 #include <iostream>
+#include <inttypes.h>
 
 #define configASSERT(x) if((x)==0) { std::cout << std::endl << "configASSERT @ " << __FUNCTION__ << ":" << __LINE__ << std::endl; std::cin.get(); }
 #define ARRAY_SIZE(x)  (sizeof(x) / sizeof(x[0]))
@@ -16,7 +17,7 @@ public:
     static Stm32BootClient::ErrorCode deinit();
     static void setResetLine( bool _level );
     static void setBootLine( bool _level );
-    static void delayMs( size_t _delay );
+    static void delayMs( uint32_t _delay );
 protected:
 private:
     static HANDLE m_handle;

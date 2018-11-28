@@ -58,16 +58,16 @@ Stm32BootClient::ErrorCode Stm32Io::init() {
  * @return Stm32BootClient::ErrorCode 
  */
 Stm32BootClient::ErrorCode Stm32Io::write( const void * _src, size_t _size, size_t * _written ) {
-    DWORD written;
+    DWORD wr;
     BOOL status = WriteFile(
         m_handle,
         _src,
-        _size,
-        reinterpret_cast<LPDWORD>(&written),
+        static_cast<DWORD>(_size),
+        reinterpret_cast<LPDWORD>(&wr),
         NULL
         );
     if (_written)
-        *_written = written;
+        *_written = wr;
 
     Stm32BootClient::ErrorCode result = ( status == 0 ) ? Stm32BootClient::ErrorCode::FAILED : Stm32BootClient::ErrorCode::OK;
     return result;
@@ -86,7 +86,7 @@ Stm32BootClient::ErrorCode Stm32Io::read( void * _dst, size_t _size, size_t * _r
     BOOL status = ReadFile(
         m_handle,
         _dst,
-        _size,
+        static_cast<DWORD>(_size),
         reinterpret_cast<LPDWORD>(_read),
         NULL);
     Stm32BootClient::ErrorCode result = ( status == 0 ) ? Stm32BootClient::ErrorCode::FAILED : Stm32BootClient::ErrorCode::OK;
@@ -129,7 +129,7 @@ void Stm32Io::setBootLine( bool _level ) {
  * 
  * @param _delay how many ms to wait.
  */
-void Stm32Io::delayMs( size_t _delay ) {
+void Stm32Io::delayMs( uint32_t _delay ) {
     Sleep(_delay);
 }
 
