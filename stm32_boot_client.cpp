@@ -81,6 +81,18 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandGet() {
                 err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::FAILED;
                 if (err == ErrorCode::OK) {
                     err = ( ackCode == ACK_RESP_CODE ) ? ErrorCode::ACK_OK : ErrorCode::ACK_FAILED;
+                    if (err == ErrorCode::ACK_OK) {
+                        uint8_t rxInfo[14];
+                        err = Stm32Io::read(rxInfo, sizeof( rxInfo ), &rd);
+                        if (err == ErrorCode::OK) {
+                            err = ( rd == sizeof( rxInfo ) ) ? ErrorCode::OK : ErrorCode::FAILED;
+                            if (err == ErrorCode::OK) {
+                                for ( uint32_t i = 0; i < sizeof( rxInfo ); i++ ) {
+                                    std::cout << std::hex << static_cast<int>(rxInfo[i]) << std::dec << std::endl;
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
