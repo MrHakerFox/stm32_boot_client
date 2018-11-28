@@ -22,6 +22,7 @@ public:
     static ErrorCode init();
     static ErrorCode checkMcuPresence();
     static std::string errorCode2String( ErrorCode _errcode );
+    static void ResetMCU();
 protected:
 private:
     static const uint8_t ACK_CODE = 0x7f;

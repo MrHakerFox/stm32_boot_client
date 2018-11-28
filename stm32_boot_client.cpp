@@ -23,6 +23,8 @@ Stm32BootClient::ErrorCode Stm32BootClient::checkMcuPresence() {
     ErrorCode result;
     uint8_t txbuff[] = {ACK_CODE};
     size_t writtern;
+    Stm32Io::setBootLine(true);
+    ResetMCU();
     result = Stm32Io::write(txbuff, sizeof( txbuff ), &writtern);
     if (result == ErrorCode::OK) {
         result = ( writtern == sizeof( txbuff ) ) ? ErrorCode::OK : ErrorCode::FAILED;
@@ -51,5 +53,10 @@ std::string Stm32BootClient::errorCode2String( ErrorCode _errcode ) {
     size_t idx = static_cast<int>(_errcode);
     configASSERT(idx < ARRAY_SIZE(msgs));
     return msgs[idx];
+}
+void Stm32BootClient::ResetMCU() {
+    Stm32Io::setResetLine(false);
+    Stm32Io::delayMs(100);
+    Stm32Io::setResetLine(true);
 }
 

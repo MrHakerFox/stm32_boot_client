@@ -98,7 +98,11 @@ Stm32BootClient::ErrorCode Stm32Io::read( void * _dst, size_t _size, size_t * _r
  * 
  * @return Stm32BootClient::ErrorCode 
  */
-Stm32BootClient::ErrorCode Stm32Io::deinit() {}
+Stm32BootClient::ErrorCode Stm32Io::deinit() {
+    Stm32BootClient::ErrorCode result;
+    result = CloseHandle(m_handle) ? Stm32BootClient::ErrorCode::OK : Stm32BootClient::ErrorCode::FAILED;
+    return result;
+}
 /*!
  * Function: setResetLine 
  * Control reset MCU line.
@@ -106,8 +110,7 @@ Stm32BootClient::ErrorCode Stm32Io::deinit() {}
  * @param _level true - hight level, false - low level
  */
 void Stm32Io::setResetLine( bool _level ) {
-    std::cout << "Set BOOT Line in high state, then reset MCU, press ENTER....";
-    std::cin.get();
+    (void)_level;
 }
 /*!
  * Function: setBootLine 
@@ -117,6 +120,7 @@ void Stm32Io::setResetLine( bool _level ) {
  * @param _level true - high level, false - low level;
  */
 void Stm32Io::setBootLine( bool _level ) {
+    (void)_level;
     /// For pc do nothing
 }
 /*!
