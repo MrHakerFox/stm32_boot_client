@@ -18,6 +18,31 @@ public:
     enum class Command : uint8_t {
         Get = 0x00                  /// Get the version and allowed commands
     };
+    typedef struct __packed CommandGetResponse_t {
+        void getBootVer( uint8_t &_high, uint8_t &_low ) {
+            _high = static_cast<uint8_t>(bootver >> 4);
+            _low = bootver & 0x0f;
+        }
+        std::string getBootVerStr() {
+            uint8_t high, low;
+            getBootVer(high, low);
+            return std::to_string(high) + "." + std::to_string(low);
+        }
+        size_t getCommandListSize() const {
+            return sizeof( supportedCommands );
+        }
+        Command getCommand( size_t _idx ) {
+            //    configASSERT(_idx < sizeof( supportedCommands ));
+            Command result = Command::Get;
+            if (_idx < sizeof( supportedCommands )) {
+                result = static_cast<Command>(supportedCommands[_idx]);
+            }
+            return result;
+        }
+        uint8_t bytenum;
+        uint8_t bootver;
+        uint8_t supportedCommands[11];
+    }CommandGetResponse_t;
     static Stm32BootClient * instance() {
         static Stm32BootClient * __self = new Stm32BootClient;
         return __self;
@@ -34,6 +59,6 @@ private:
     static const size_t BOOT_READY_DELAY = 777;
 
     static void ResetMCU();
-    ErrorCode commandGet();
+    ErrorCode commandGet( CommandGetResponse_t &_resp );
 };
 #endif

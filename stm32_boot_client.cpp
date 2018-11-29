@@ -63,32 +63,50 @@ void Stm32BootClient::ResetMCU() {
     Stm32Io::setResetLine(true);
 }
 Stm32BootClient::ErrorCode Stm32BootClient::getInfo() {
-    ErrorCode err = commandGet();
+    CommandGetResponse_t resp;
+    ErrorCode err = commandGet(resp);
+    if (err == ErrorCode::OK) {
+        std::cout << "Command Get Response::" << std::endl;
+        std::cout << "Bootloader version: " << resp.getBootVerStr() << std::endl;
+    }
     return err;
 }
-Stm32BootClient::ErrorCode Stm32BootClient::commandGet() {
+Stm32BootClient::ErrorCode Stm32BootClient::commandGet( CommandGetResponse_t &_resp ) {
     ErrorCode err;
     size_t written;
     uint8_t txBuff[] = { static_cast<uint8_t>(Command::Get), static_cast<uint8_t>(~( static_cast<uint8_t>(Command::Get) ))};
     err = Stm32Io::write(txBuff, sizeof( txBuff ), &written);
+    std::cout << __LINE__ << ": " << errorCode2String(err) << std::endl;
     if (err == ErrorCode::OK) {
         err = ( written == sizeof( txBuff ) ) ? ErrorCode::OK : ErrorCode::FAILED;
+        std::cout << __LINE__ << ": " << errorCode2String(err) << std::endl;
         if (err == ErrorCode::OK) {
             size_t rd;
             uint8_t ackCode;
             err = Stm32Io::read(&ackCode, sizeof( ackCode ), &rd);
+            std::cout << __LINE__ << ": " << errorCode2String(err) << std::endl;
             if (err == ErrorCode::OK) {
                 err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::FAILED;
+                std::cout << __LINE__ << ": " << errorCode2String(err) << rd << std::endl;
                 if (err == ErrorCode::OK) {
                     err = ( ackCode == ACK_RESP_CODE ) ? ErrorCode::ACK_OK : ErrorCode::ACK_FAILED;
+                    std::cout << __LINE__ << ": " << errorCode2String(err) << std::endl;
                     if (err == ErrorCode::ACK_OK) {
-                        uint8_t rxInfo[14];
-                        err = Stm32Io::read(rxInfo, sizeof( rxInfo ), &rd);
+                        err = Stm32Io::read(&_resp, sizeof( _resp ), &rd);
+                        std::cout << __LINE__ << ": " << errorCode2String(err) << std::endl;
                         if (err == ErrorCode::OK) {
-                            err = ( rd == sizeof( rxInfo ) ) ? ErrorCode::OK : ErrorCode::FAILED;
+                            err = ( rd == sizeof( _resp ) ) ? ErrorCode::OK : ErrorCode::FAILED;
+                            std::cout << __LINE__ << ": " << errorCode2String(err) << std::endl;
                             if (err == ErrorCode::OK) {
-                                for ( uint32_t i = 0; i < sizeof( rxInfo ); i++ ) {
-                                    std::cout << std::hex << static_cast<int>(rxInfo[i]) << std::dec << std::endl;
+                                err = Stm32Io::read(&ackCode, sizeof( ackCode ), &rd);
+                                std::cout << __LINE__ << ": " << errorCode2String(err) << std::endl;
+                                if (err == ErrorCode::OK) {
+                                    err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::FAILED;
+                                    std::cout << __LINE__ << ": " << errorCode2String(err) << std::endl;
+                                    if (err == ErrorCode::OK) {
+                                        err = ( ackCode == ACK_RESP_CODE ) ? ErrorCode::ACK_OK : ErrorCode::ACK_FAILED;
+                                        std::cout << __LINE__ << ": " << errorCode2String(err) << std::endl;
+                                    }
                                 }
                             }
                         }
