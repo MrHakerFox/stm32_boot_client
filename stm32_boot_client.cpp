@@ -65,7 +65,7 @@ void Stm32BootClient::ResetMCU() {
 Stm32BootClient::ErrorCode Stm32BootClient::getInfo() {
     CommandGetResponse_t resp;
     ErrorCode err = commandGet(resp);
-    if (err == ErrorCode::OK) {
+    if (err == ErrorCode::ACK_OK) {
         std::cout << "Command Get Response::" << std::endl;
         std::cout << "Bootloader version: " << resp.getBootVerStr() << std::endl;
     }
