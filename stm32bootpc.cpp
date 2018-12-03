@@ -17,9 +17,17 @@ int tryDetectMcu( Stm32BootClient::McuType &_mcy ) {
         std::cout << "No MCU found!" << std::endl;
     } else {
         std::cout << "OK! Some MCU found, try to found out type." << std::endl;
-        std::cout << "Get MCU's information...";
-        err = Stm32BootClient::instance()->getInfo();
+        std::cout << "Get MCU's bootloader info...";
+        Stm32BootClient::CommandGetResponse_t getresp;
+        err = Stm32BootClient::commandGet(getresp);
         std::cout << Stm32BootClient::errorCode2String(err) << std::endl;
+        if (err == Stm32BootClient::ErrorCode::OK) {
+            std::cout << "Boot ver.: " << getresp.getBootVerStr() << std::endl;
+            std::cout << "List of supported commands: ";
+            for ( size_t i = 0; i < getresp.getCommandListSize(); i++ ) {
+                std::cout << std::hex << "0x" << static_cast<int>(getresp.getCommand(i)) << " " << std::dec;
+            }
+        }
     }
     return ( err == Stm32BootClient::ErrorCode::OK ) ? 0 : -1;
 }

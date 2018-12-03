@@ -63,15 +63,14 @@ void Stm32BootClient::ResetMCU() {
     Stm32Io::delayMs(100);
     Stm32Io::setResetLine(true);
 }
-Stm32BootClient::ErrorCode Stm32BootClient::getInfo() {
-    CommandGetResponse_t resp;
-    ErrorCode err = commandGet(resp);
-    if (err == ErrorCode::ACK_OK) {
-        std::cout << "Command Get Response::" << std::endl;
-        std::cout << "Bootloader version: " << resp.getBootVerStr() << std::endl;
-    }
-    return err;
-}
+/*!
+ * Function: commandGet 
+ * Get Command function
+ * 
+ * @param _resp 
+ * 
+ * @return Stm32BootClient::ErrorCode 
+ */
 Stm32BootClient::ErrorCode Stm32BootClient::commandGet( CommandGetResponse_t &_resp ) {
     ErrorCode err;
     size_t written;
@@ -96,7 +95,7 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandGet( CommandGetResponse_t &_r
                                 if (err == ErrorCode::OK) {
                                     err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::FAILED;
                                     if (err == ErrorCode::OK) {
-                                        err = ( ackCode == ACK_RESP_CODE ) ? ErrorCode::ACK_OK : ErrorCode::ACK_FAILED;
+                                        err = ( ackCode == ACK_RESP_CODE ) ? ErrorCode::OK : ErrorCode::ACK_FAILED;
                                     }
                                 }
                             }

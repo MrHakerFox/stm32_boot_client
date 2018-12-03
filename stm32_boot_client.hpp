@@ -53,7 +53,7 @@ public:
     static ErrorCode init();
     static ErrorCode checkMcuPresence();
     static std::string errorCode2String( ErrorCode _errcode );
-    ErrorCode getInfo();
+    static ErrorCode commandGet( CommandGetResponse_t &_resp );
 protected:
 private:
     static const uint8_t ACK_ASK_CODE = 0x7f;
@@ -62,6 +62,5 @@ private:
     static const size_t BOOT_READY_DELAY = 777;
 
     static void ResetMCU();
-    ErrorCode commandGet( CommandGetResponse_t &_resp );
 };
 #endif
