@@ -19,7 +19,7 @@ public:
     enum class Command : uint8_t {
         Get = 0x00,                 /// Get the version and allowed commands
         GvRps = 0x01,               /// Get Version & Read protection Status command
-
+        Getid = 0x02,               /// Get the chip Id
     };
     typedef struct __packed CommandGetResponse_t {
     public:
@@ -73,6 +73,7 @@ public:
     static std::string errorCode2String( ErrorCode _errcode );
     static ErrorCode commandGet( CommandGetResponse_t &_resp );
     static ErrorCode commandGvRps( CommandGvRpsResponse_t &_resp );
+    static ErrorCode commandGetId( uint16_t &_id );
 protected:
 private:
     static const uint8_t ACK_ASK_CODE = 0x7f;
