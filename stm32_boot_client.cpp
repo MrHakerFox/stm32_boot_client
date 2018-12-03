@@ -51,7 +51,8 @@ std::string Stm32BootClient::errorCode2String( ErrorCode _errcode ) {
         "Generic Error",
         "ACK has been received",
         "No ACK received",
-        "Can't open serial port"
+        "Can't open serial port",
+        "Debug code"
     };
     size_t idx = static_cast<int>(_errcode);
     configASSERT(idx < ARRAY_SIZE(msgs));
@@ -76,36 +77,26 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandGet( CommandGetResponse_t &_r
     size_t written;
     uint8_t txBuff[] = { static_cast<uint8_t>(Command::Get), static_cast<uint8_t>(~( static_cast<uint8_t>(Command::Get) ))};
     err = Stm32Io::write(txBuff, sizeof( txBuff ), &written);
-    std::cout << __LINE__ << ": " << errorCode2String(err) << std::endl;
     if (err == ErrorCode::OK) {
         err = ( written == sizeof( txBuff ) ) ? ErrorCode::OK : ErrorCode::FAILED;
-        std::cout << __LINE__ << ": " << errorCode2String(err) << std::endl;
         if (err == ErrorCode::OK) {
             size_t rd;
             uint8_t ackCode;
             err = Stm32Io::read(&ackCode, sizeof( ackCode ), &rd);
-            std::cout << __LINE__ << ": " << errorCode2String(err) << std::endl;
             if (err == ErrorCode::OK) {
                 err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::FAILED;
-                std::cout << __LINE__ << ": " << errorCode2String(err) << rd << std::endl;
                 if (err == ErrorCode::OK) {
                     err = ( ackCode == ACK_RESP_CODE ) ? ErrorCode::ACK_OK : ErrorCode::ACK_FAILED;
-                    std::cout << __LINE__ << ": " << errorCode2String(err) << std::endl;
                     if (err == ErrorCode::ACK_OK) {
-                        err = Stm32Io::read(&_resp, sizeof( _resp ), &rd);
-                        std::cout << __LINE__ << ": " << errorCode2String(err) << std::endl;
+                        err = Stm32Io::read(&_resp, sizeof( CommandGetResponse_t ), &rd);
                         if (err == ErrorCode::OK) {
                             err = ( rd == sizeof( _resp ) ) ? ErrorCode::OK : ErrorCode::FAILED;
-                            std::cout << __LINE__ << ": " << errorCode2String(err) << std::endl;
                             if (err == ErrorCode::OK) {
                                 err = Stm32Io::read(&ackCode, sizeof( ackCode ), &rd);
-                                std::cout << __LINE__ << ": " << errorCode2String(err) << std::endl;
                                 if (err == ErrorCode::OK) {
                                     err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::FAILED;
-                                    std::cout << __LINE__ << ": " << errorCode2String(err) << std::endl;
                                     if (err == ErrorCode::OK) {
                                         err = ( ackCode == ACK_RESP_CODE ) ? ErrorCode::ACK_OK : ErrorCode::ACK_FAILED;
-                                        std::cout << __LINE__ << ": " << errorCode2String(err) << std::endl;
                                     }
                                 }
                             }

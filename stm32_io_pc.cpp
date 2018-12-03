@@ -83,12 +83,16 @@ Stm32BootClient::ErrorCode Stm32Io::write( const void * _src, size_t _size, size
  * @return Stm32BootClient::ErrorCode 
  */
 Stm32BootClient::ErrorCode Stm32Io::read( void * _dst, size_t _size, size_t * _read ) {
+    DWORD rd;
     BOOL status = ReadFile(
         m_handle,
         _dst,
         static_cast<DWORD>(_size),
-        reinterpret_cast<LPDWORD>(_read),
+        reinterpret_cast<LPDWORD>(&rd),
         NULL);
+    if (_read) {
+        *_read = rd;
+    }
     Stm32BootClient::ErrorCode result = ( status == 0 ) ? Stm32BootClient::ErrorCode::FAILED : Stm32BootClient::ErrorCode::OK;
     return result;
 }

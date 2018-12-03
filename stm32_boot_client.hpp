@@ -14,11 +14,13 @@ public:
         ACK_OK = 0x02,              /// ACK has been received
         ACK_FAILED = 0x03,          /// ACK has not been received, no MCU connected???
         SERIAL_CANT_OPEN = 0x04,    /// Can't open serial port
+        DBG_CODE = 0x05,            /// Debug code
     };
     enum class Command : uint8_t {
         Get = 0x00                  /// Get the version and allowed commands
     };
     typedef struct __packed CommandGetResponse_t {
+    public:
         void getBootVer( uint8_t &_high, uint8_t &_low ) {
             _high = static_cast<uint8_t>(bootver >> 4);
             _low = bootver & 0x0f;
@@ -39,6 +41,7 @@ public:
             }
             return result;
         }
+    private:
         uint8_t bytenum;
         uint8_t bootver;
         uint8_t supportedCommands[11];
