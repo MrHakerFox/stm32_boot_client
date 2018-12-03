@@ -17,7 +17,9 @@ public:
         DBG_CODE = 0x05,            /// Debug code
     };
     enum class Command : uint8_t {
-        Get = 0x00                  /// Get the version and allowed commands
+        Get = 0x00,                 /// Get the version and allowed commands
+        GvRps = 0x01,               /// Get Version & Read protection Status command
+
     };
     typedef struct __packed CommandGetResponse_t {
     public:
@@ -46,6 +48,22 @@ public:
         uint8_t bootver;
         uint8_t supportedCommands[11];
     }CommandGetResponse_t;
+    typedef struct __packed CommandGvRpsResponse_t {
+    public:
+        void getBootVer( uint8_t &_high, uint8_t &_low ) {
+            _high = static_cast<uint8_t>(bootver >> 4);
+            _low = bootver & 0x0f;
+        }
+        std::string getBootVerStr() {
+            uint8_t high, low;
+            getBootVer(high, low);
+            return std::to_string(high) + "." + std::to_string(low);
+        }
+    protected:
+        uint8_t bootver;
+        uint8_t opt1;
+        uint8_t opt2;
+    }CommandGvRpsResponse;
     static Stm32BootClient * instance() {
         static Stm32BootClient * __self = new Stm32BootClient;
         return __self;
@@ -54,6 +72,7 @@ public:
     static ErrorCode checkMcuPresence();
     static std::string errorCode2String( ErrorCode _errcode );
     static ErrorCode commandGet( CommandGetResponse_t &_resp );
+    static ErrorCode commandGvRps( CommandGvRpsResponse_t &_resp );
 protected:
 private:
     static const uint8_t ACK_ASK_CODE = 0x7f;

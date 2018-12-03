@@ -74,7 +74,8 @@ void Stm32BootClient::ResetMCU() {
 Stm32BootClient::ErrorCode Stm32BootClient::commandGet( CommandGetResponse_t &_resp ) {
     ErrorCode err;
     size_t written;
-    uint8_t txBuff[] = { static_cast<uint8_t>(Command::Get), static_cast<uint8_t>(~( static_cast<uint8_t>(Command::Get) ))};
+    static const uint8_t cmd = static_cast<uint8_t>(Command::Get);
+    uint8_t txBuff[] = { cmd, static_cast<uint8_t>(~cmd)};
     err = Stm32Io::write(txBuff, sizeof( txBuff ), &written);
     if (err == ErrorCode::OK) {
         err = ( written == sizeof( txBuff ) ) ? ErrorCode::OK : ErrorCode::FAILED;
@@ -88,6 +89,51 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandGet( CommandGetResponse_t &_r
                     err = ( ackCode == ACK_RESP_CODE ) ? ErrorCode::ACK_OK : ErrorCode::ACK_FAILED;
                     if (err == ErrorCode::ACK_OK) {
                         err = Stm32Io::read(&_resp, sizeof( CommandGetResponse_t ), &rd);
+                        if (err == ErrorCode::OK) {
+                            err = ( rd == sizeof( _resp ) ) ? ErrorCode::OK : ErrorCode::FAILED;
+                            if (err == ErrorCode::OK) {
+                                err = Stm32Io::read(&ackCode, sizeof( ackCode ), &rd);
+                                if (err == ErrorCode::OK) {
+                                    err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::FAILED;
+                                    if (err == ErrorCode::OK) {
+                                        err = ( ackCode == ACK_RESP_CODE ) ? ErrorCode::OK : ErrorCode::ACK_FAILED;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return err;
+}
+/*!
+ * Function: commandGvRps 
+ * Get Version & Read Protection Status Command function.
+ * 
+ * @param _resp 
+ * 
+ * @return Stm32BootClient::ErrorCode 
+ */
+Stm32BootClient::ErrorCode Stm32BootClient::commandGvRps( CommandGvRpsResponse_t &_resp ) {
+    ErrorCode err;
+    size_t written;
+    static const uint8_t cmd = static_cast<uint8_t>(Command::GvRps);
+    uint8_t txBuff[] = { cmd, static_cast<uint8_t>(~cmd)};
+    err = Stm32Io::write(txBuff, sizeof( txBuff ), &written);
+    if (err == ErrorCode::OK) {
+        err = ( written == sizeof( txBuff ) ) ? ErrorCode::OK : ErrorCode::FAILED;
+        if (err == ErrorCode::OK) {
+            size_t rd;
+            uint8_t ackCode;
+            err = Stm32Io::read(&ackCode, sizeof( ackCode ), &rd);
+            if (err == ErrorCode::OK) {
+                err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::FAILED;
+                if (err == ErrorCode::OK) {
+                    err = ( ackCode == ACK_RESP_CODE ) ? ErrorCode::ACK_OK : ErrorCode::ACK_FAILED;
+                    if (err == ErrorCode::ACK_OK) {
+                        err = Stm32Io::read(&_resp, sizeof( _resp ), &rd);
                         if (err == ErrorCode::OK) {
                             err = ( rd == sizeof( _resp ) ) ? ErrorCode::OK : ErrorCode::FAILED;
                             if (err == ErrorCode::OK) {
