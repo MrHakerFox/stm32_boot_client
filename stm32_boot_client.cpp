@@ -153,14 +153,9 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandGvRps( CommandGvRpsResponse_t
     }
     return err;
 }
-Stm32BootClient::ErrorCode Stm32BootClient::commandGetId( uint16_t &_id ) {
+Stm32BootClient::ErrorCode Stm32BootClient::commandGetId( CommandGetIdResponse_t &_resp ) {
     ErrorCode err;
     size_t written;
-    struct __packed Id_t {
-        uint8_t numbytes;
-        uint8_t pid1;
-        uint8_t pid2;
-    };
     static const uint8_t cmd = static_cast<uint8_t>(Command::Getid);
     uint8_t txBuff[] = { cmd, static_cast<uint8_t>(~cmd)};
     err = Stm32Io::write(txBuff, sizeof( txBuff ), &written);
@@ -175,19 +170,15 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandGetId( uint16_t &_id ) {
                 if (err == ErrorCode::OK) {
                     err = ( ackCode == ACK_RESP_CODE ) ? ErrorCode::ACK_OK : ErrorCode::ACK_FAILED;
                     if (err == ErrorCode::ACK_OK) {
-                        Id_t pid;
-                        err = Stm32Io::read(&pid, sizeof( pid ), &rd);
+                        err = Stm32Io::read(&_resp, sizeof( _resp ), &rd);
                         if (err == ErrorCode::OK) {
-                            err = ( rd == sizeof( pid ) ) ? ErrorCode::OK : ErrorCode::FAILED;
+                            err = ( rd == sizeof( _resp ) ) ? ErrorCode::OK : ErrorCode::FAILED;
                             if (err == ErrorCode::OK) {
                                 err = Stm32Io::read(&ackCode, sizeof( ackCode ), &rd);
                                 if (err == ErrorCode::OK) {
                                     err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::FAILED;
                                     if (err == ErrorCode::OK) {
                                         err = ( ackCode == ACK_RESP_CODE ) ? ErrorCode::OK : ErrorCode::ACK_FAILED;
-                                        if (err == ErrorCode::OK) {
-                                            memcpy(&_id, &pid.pid1, sizeof( _id ));
-                                        }
                                     }
                                 }
                             }

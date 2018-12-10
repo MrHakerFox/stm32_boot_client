@@ -28,11 +28,11 @@ int tryDetectMcu( Stm32BootClient::McuType &_mcy ) {
                 std::cout << std::hex << "0x" << static_cast<int>(getresp.getCommand(i)) << " " << std::dec;
             }
             std::cout << std::endl << "Get Chip Id...";
-            uint16_t chipid;
+            Stm32BootClient::CommandGetIdResponse_t chipid;
             err = Stm32BootClient::commandGetId(chipid);
             std::cout << Stm32BootClient::errorCode2String(err) << std::endl;
             if (err == Stm32BootClient::ErrorCode::OK) {
-                std::cout << std::hex << static_cast<int>(chipid) << std::endl;
+                std::cout << "0x" << std::hex << chipid.getId() << std::endl;
             }
         }
     }

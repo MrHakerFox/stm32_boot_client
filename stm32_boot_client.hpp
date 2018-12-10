@@ -64,6 +64,16 @@ public:
         uint8_t opt1;
         uint8_t opt2;
     }CommandGvRpsResponse;
+    typedef struct __packed CommandGetIdResponse_t {
+    public:
+        uint16_t getId() const {
+            return static_cast<uint16_t>(( pid1 << 8 ) | pid2);
+        }
+    private:
+        uint8_t numbytes;
+        uint8_t pid1;
+        uint8_t pid2;
+    }CommandGetIdResponse_t;
     static Stm32BootClient * instance() {
         static Stm32BootClient * __self = new Stm32BootClient;
         return __self;
@@ -73,7 +83,7 @@ public:
     static std::string errorCode2String( ErrorCode _errcode );
     static ErrorCode commandGet( CommandGetResponse_t &_resp );
     static ErrorCode commandGvRps( CommandGvRpsResponse_t &_resp );
-    static ErrorCode commandGetId( uint16_t &_id );
+    static ErrorCode commandGetId( CommandGetIdResponse_t &_resp );
 protected:
 private:
     static const uint8_t ACK_ASK_CODE = 0x7f;
