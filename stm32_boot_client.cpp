@@ -302,7 +302,14 @@ Stm32BootClient::ErrorCode Stm32BootClient::readMcuSpecificInfo( uint16_t _chipi
     return err;
 }
 uint8_t Stm32BootClient::calculateXor( const uint8_t * _src, size_t _size ) {
-    (void)_src;
-    (void)_size;
-    return 0;
+    configASSERT(_src);
+    configASSERT(_size);
+    uint8_t result = *_src++;
+    _size--;
+    while (_size--) {
+        result ^= *_src;
+        _src++;
+    }
+    return result;
+    ;
 }
