@@ -33,6 +33,15 @@ int tryDetectMcu( Stm32BootClient::McuType &_mcy ) {
             std::cout << Stm32BootClient::errorCode2String(err) << std::endl;
             if (err == Stm32BootClient::ErrorCode::OK) {
                 std::cout << "0x" << std::hex << chipid.getId() << std::endl;
+                Stm32BootClient::McuType mcutype = Stm32BootClient::chipId2McuType(chipid.getId());
+                std::cout << "MCU Type: " << Stm32BootClient::mcuType2String(mcutype) << std::endl;
+                std::cout << "Read MCU Specs...";
+                Stm32BootClient::McuSpecificInfo_t spec;
+                err = Stm32BootClient::readMcuSpecificInfo(chipid.getId(), spec);
+                std::cout << Stm32BootClient::errorCode2String(err) << std::endl;
+                if (err == Stm32BootClient::ErrorCode::OK) {
+                    std::cout << "\tFlash size: " << spec.flashSize << "bytes." << std::endl;
+                }
             }
         }
     }
@@ -53,7 +62,7 @@ int main( int argc, char * argv[] ) {
         if (argc > 1) {
             settings = parseCommandLine(argc, argv);
         }
-        if (settings.mcuType == Stm32BootClient::McuType::Auto) {
+        if (settings.mcuType == Stm32BootClient::McuType::Unknown) {
             result = tryDetectMcu(settings.mcuType);
         }
     }

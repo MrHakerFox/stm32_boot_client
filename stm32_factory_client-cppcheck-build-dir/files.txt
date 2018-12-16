@@ -1,0 +1,3 @@
+stm32_boot_client.a1::E:/My/Projects/LAB/Software/boots/stm32_factory_client/stm32_boot_client.cpp
+stm32_io_pc.a1::E:/My/Projects/LAB/Software/boots/stm32_factory_client/stm32_io_pc.cpp
+stm32bootpc.a1::E:/My/Projects/LAB/Software/boots/stm32_factory_client/stm32bootpc.cpp

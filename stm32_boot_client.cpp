@@ -3,6 +3,19 @@
   */
 #include "stm32_boot_client.hpp"
 #include "stm32_io_pc.hpp"
+const Stm32BootClient::McuDescription_t Stm32BootClient::m_mcuDescription[] = {
+    {   /// Stm32F05xxx_F030x8
+        0x20000800,
+        0x20001fff,
+        0x1fffec00,
+        0x1ffff7ff,
+        0x20000000,
+        0x00002000,
+        0x08000000,
+        0x1ffff7cc,
+        true
+    },
+};
 /*!
  * Function: init 
  * Initializes client serial port and other things.
@@ -52,11 +65,41 @@ std::string Stm32BootClient::errorCode2String( ErrorCode _errcode ) {
         "ACK has been received",
         "No ACK received",
         "Can't open serial port",
-        "Debug code"
+        "Debug code",
+        "Unknown MCU type"
     };
     size_t idx = static_cast<int>(_errcode);
     configASSERT(idx < ARRAY_SIZE(msgs));
     return msgs[idx];
+}
+std::string Stm32BootClient::mcuType2String( McuType _type ) {
+    static const std::string name[] = {
+        "STM32F05xxx or STM32F030x8",
+    };
+    std::string result = "Unknown";
+    size_t idx = static_cast<size_t>(_type);
+    if (idx != 0xff) {
+        configASSERT(idx < ARRAY_SIZE(name));
+        result = name[idx];
+    }
+    return result;
+}
+Stm32BootClient::McuDescription_t Stm32BootClient::mcuType2Description( McuType _type ) {
+    McuDescription_t result;
+    memset(&result, 0xff, sizeof( result ));
+    if (_type != McuType::Unknown) {
+        size_t idx = static_cast<size_t>(_type);
+        configASSERT(idx < ARRAY_SIZE(m_mcuDescription));
+        result = m_mcuDescription[idx];
+    }
+    return result;
+}
+Stm32BootClient::McuType Stm32BootClient::chipId2McuType( uint16_t _chipid ) {
+    Stm32BootClient::McuType result = McuType::Unknown;
+    if (_chipid == 0x0440)
+        result = McuType::Stm32F05xxx_F030x8;
+    return result;
+
 }
 void Stm32BootClient::ResetMCU() {
     Stm32Io::setResetLine(false);
@@ -189,4 +232,77 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandGetId( CommandGetIdResponse_t
         }
     }
     return err;
+}
+Stm32BootClient::ErrorCode Stm32BootClient::commandReadMemory( void * _dst, uint32_t _addr, size_t _size ) {
+    configASSERT(_dst);
+    configASSERT(_size);
+    ErrorCode err;
+    size_t written;
+    static const uint8_t cmd = static_cast<uint8_t>(Command::ReadMemory);
+    uint8_t txBuff[] = { cmd, static_cast<uint8_t>(~cmd)};
+    err = Stm32Io::write(txBuff, sizeof( txBuff ), &written);
+    if (err == ErrorCode::OK) {
+        err = ( written == sizeof( txBuff ) ) ? ErrorCode::OK : ErrorCode::FAILED;
+        if (err == ErrorCode::OK) {
+            size_t rd;
+            uint8_t ackCode;
+            err = Stm32Io::read(&ackCode, sizeof( ackCode ), &rd);
+            if (err == ErrorCode::OK) {
+                err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::FAILED;
+                if (err == ErrorCode::OK) {
+                    err = ( ackCode == ACK_RESP_CODE ) ? ErrorCode::ACK_OK : ErrorCode::ACK_FAILED;
+                    if (err == ErrorCode::ACK_OK) {
+                        err = ErrorCode::OK;
+                        for ( size_t addr_b_count = 0; addr_b_count < sizeof( _addr ) && err == ErrorCode::OK; addr_b_count++ ) {
+                            uint8_t addr_b = static_cast<uint8_t>(_addr >> ( 24 - addr_b_count * 8 ));
+                            err = Stm32Io::write(&addr_b, sizeof( addr_b ), &written);
+                            if (err == ErrorCode::OK && written != sizeof( addr_b ))
+                                err = ErrorCode::FAILED;
+                        }
+                        if (err == ErrorCode::OK) {
+                            uint8_t xor_cs = calculateXor(reinterpret_cast<uint8_t *>(&_addr), sizeof( _addr ));
+                            err = Stm32Io::write(&xor_cs, sizeof( xor_cs ), &written);
+                            if (err == ErrorCode::OK) {
+                                err = ( written == sizeof( xor_cs ) ) ? ErrorCode::OK : ErrorCode::FAILED;
+                                if (err == ErrorCode::OK) {
+                                    err = Stm32Io::read(&ackCode, sizeof( ackCode ), &rd);
+                                    if (err == ErrorCode::OK) {
+                                        err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::FAILED;
+                                        if (err == ErrorCode::OK) {
+                                            err = ( ackCode == ACK_RESP_CODE ) ? ErrorCode::ACK_OK : ErrorCode::ACK_FAILED;
+                                            if (err == ErrorCode::OK) {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return err;
+}
+Stm32BootClient::ErrorCode Stm32BootClient::readMcuSpecificInfo( uint16_t _chipid, McuSpecificInfo_t &_info ) {
+    ErrorCode err;
+    McuType mcu = chipId2McuType(_chipid);
+    if (mcu == McuType::Unknown)
+        err = ErrorCode::UNKNOWN_MCU;
+    else {
+        McuDescription_t descr = mcuType2Description(mcu);
+        if (descr.blRamBegin == 0xffffffff)
+            err = ErrorCode::UNKNOWN_MCU;
+        else {
+            err = commandReadMemory(&_info.flashSize, descr.flashSizeReg, sizeof( descr.flashSizeReg ));
+            if (err == ErrorCode::OK) {
+                _info.flashSize *= 1024; /// as size of the device expressed in Kbytes
+            }
+        }
+    }
+    return err;
+}
+uint8_t Stm32BootClient::calculateXor( const uint8_t * _src, size_t _size ) {
+    (void)_src;
+    (void)_size;
+    return 0;
 }

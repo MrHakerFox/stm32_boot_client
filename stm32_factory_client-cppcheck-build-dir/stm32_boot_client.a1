@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<analyzerinfo checksum="316997041">
+  <FileInfo check="CheckUnusedFunctions">
+    <functiondecl functionName="init" lineNumber="24"/>
+    <functiondecl functionName="checkMcuPresence" lineNumber="37"/>
+    <functiondecl functionName="errorCode2String" lineNumber="60"/>
+    <functiondecl functionName="mcuType2String" lineNumber="73"/>
+    <functiondecl functionName="mcuType2Description" lineNumber="85"/>
+    <functiondecl functionName="chipId2McuType" lineNumber="95"/>
+    <functiondecl functionName="ResetMCU" lineNumber="102"/>
+    <functiondecl functionName="commandGet" lineNumber="115"/>
+    <functiondecl functionName="commandGvRps" lineNumber="160"/>
+    <functiondecl functionName="commandGetId" lineNumber="197"/>
+    <functiondecl functionName="readMcuSpecificInfo" lineNumber="234"/>
+    <functioncall functionName="ACK_ASK_CODE"/>
+    <functioncall functionName="ACK_FAILED"/>
+    <functioncall functionName="ACK_OK"/>
+    <functioncall functionName="BOOT_READY_DELAY"/>
+    <functioncall functionName="CommandGetResponse_t"/>
+    <functioncall functionName="FAILED"/>
+    <functioncall functionName="Get"/>
+    <functioncall functionName="Getid"/>
+    <functioncall functionName="GvRps"/>
+    <functioncall functionName="OK"/>
+    <functioncall functionName="ResetMCU"/>
+    <functioncall functionName="Stm32F05xxx_F030x8"/>
+    <functioncall functionName="UNKNOWN_MCU"/>
+    <functioncall functionName="Unknown"/>
+    <functioncall functionName="_chipid"/>
+    <functioncall functionName="_errcode"/>
+    <functioncall functionName="_resp"/>
+    <functioncall functionName="_type"/>
+    <functioncall functionName="ackCode"/>
+    <functioncall functionName="chipId2McuType"/>
+    <functioncall functionName="cmd"/>
+    <functioncall functionName="commandReadMemory"/>
+    <functioncall functionName="count"/>
+    <functioncall functionName="delayMs"/>
+    <functioncall functionName="false"/>
+    <functioncall functionName="flashSize"/>
+    <functioncall functionName="flashSizeReg"/>
+    <functioncall functionName="get"/>
+    <functioncall functionName="idx"/>
+    <functioncall functionName="if"/>
+    <functioncall functionName="init"/>
+    <functioncall functionName="m_mcuDescription"/>
+    <functioncall functionName="mcu"/>
+    <functioncall functionName="mcuType2Description"/>
+    <functioncall functionName="memset"/>
+    <functioncall functionName="msgs"/>
+    <functioncall functionName="name"/>
+    <functioncall functionName="nullptr"/>
+    <functioncall functionName="rd"/>
+    <functioncall functionName="read"/>
+    <functioncall functionName="result"/>
+    <functioncall functionName="rxbuff"/>
+    <functioncall functionName="setBootLine"/>
+    <functioncall functionName="setResetLine"/>
+    <functioncall functionName="sizeof"/>
+    <functioncall functionName="static_cast"/>
+    <functioncall functionName="true"/>
+    <functioncall functionName="txBuff"/>
+    <functioncall functionName="txbuff"/>
+    <functioncall functionName="write"/>
+    <functioncall functionName="written"/>
+    <functioncall functionName="writtern"/>
+  </FileInfo>
+</analyzerinfo>

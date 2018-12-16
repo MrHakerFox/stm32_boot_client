@@ -4,9 +4,20 @@
 #include <string>
 class Stm32BootClient {
 public:
+    typedef struct __packed McuDescription_t {
+        uint32_t blRamBegin;
+        uint32_t blRamEnd;
+        uint32_t blSysMemBegin;
+        uint32_t blSysMemEnd;
+        uint32_t ramBegin;
+        uint32_t ramSize;
+        uint32_t flashBegin;
+        uint32_t flashSizeReg;
+        bool rdpActive2Nack;    /// true if two nacks are sent when RDP is active
+    }McuDescription_t;
     enum class McuType : uint8_t {
-        Auto = 0,
-        Stm32F051 = 1
+        Unknown = 0xff,
+        Stm32F05xxx_F030x8 = 0x00,
     };
     enum class ErrorCode : uint8_t {
         OK = 0x00,                  /// No errors
@@ -15,11 +26,13 @@ public:
         ACK_FAILED = 0x03,          /// ACK has not been received, no MCU connected???
         SERIAL_CANT_OPEN = 0x04,    /// Can't open serial port
         DBG_CODE = 0x05,            /// Debug code
+        UNKNOWN_MCU = 0x05,         /// Unknown MCU
     };
     enum class Command : uint8_t {
         Get = 0x00,                 /// Get the version and allowed commands
         GvRps = 0x01,               /// Get Version & Read protection Status command
         Getid = 0x02,               /// Get the chip Id
+        ReadMemory = 0x11,          /// Read memory up to 256 bytes
     };
     typedef struct __packed CommandGetResponse_t {
     public:
@@ -74,6 +87,9 @@ public:
         uint8_t pid1;
         uint8_t pid2;
     }CommandGetIdResponse_t;
+    typedef struct __packed McuSpecificInfo_t {
+        uint32_t flashSize;     /// in bytes
+    }McuSpecificInfo_t;
     static Stm32BootClient * instance() {
         static Stm32BootClient * __self = new Stm32BootClient;
         return __self;
@@ -81,16 +97,23 @@ public:
     static ErrorCode init();
     static ErrorCode checkMcuPresence();
     static std::string errorCode2String( ErrorCode _errcode );
+    static std::string mcuType2String( McuType _type );
+    static McuType chipId2McuType( uint16_t _chipid );
+    static McuDescription_t mcuType2Description( McuType _type );
     static ErrorCode commandGet( CommandGetResponse_t &_resp );
     static ErrorCode commandGvRps( CommandGvRpsResponse_t &_resp );
     static ErrorCode commandGetId( CommandGetIdResponse_t &_resp );
+    static ErrorCode commandReadMemory( void * _dst, uint32_t _addr, size_t _size );
+    static ErrorCode readMcuSpecificInfo( uint16_t _chipid, McuSpecificInfo_t &_info );
 protected:
 private:
+    static const McuDescription_t m_mcuDescription[];
     static const uint8_t ACK_ASK_CODE = 0x7f;
     static const uint8_t ACK_RESP_CODE = 0x79;
     static const uint8_t NACK_RESP_CODE = 0x1f;
     static const size_t BOOT_READY_DELAY = 777;
 
     static void ResetMCU();
+    static uint8_t calculateXor( const uint8_t * _src, size_t _size );
 };
 #endif

@@ -4,7 +4,7 @@
 typedef struct Settings_t {
     Stm32BootClient::McuType mcuType;
     Settings_t() :
-        mcuType(Stm32BootClient::McuType::Auto) {}
+        mcuType(Stm32BootClient::McuType::Unknown) {}
 }Settings_t;
 int tryDetectMcu( Stm32BootClient::McuType &_mcy );
 int main( int argc, char * argv[] );

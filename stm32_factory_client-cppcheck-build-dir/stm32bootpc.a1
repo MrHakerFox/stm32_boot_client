@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<analyzerinfo checksum="2471736863">
+  <FileInfo check="CheckUnusedFunctions">
+    <functiondecl functionName="parseCommandLine" lineNumber="3"/>
+    <functiondecl functionName="tryDetectMcu" lineNumber="9"/>
+    <functiondecl functionName="initBootLoader" lineNumber="43"/>
+    <functiondecl functionName="main" lineNumber="49"/>
+    <functioncall functionName="Settings_t"/>
+    <functioncall functionName="Unknown"/>
+    <functioncall functionName="_mcy"/>
+    <functioncall functionName="argc"/>
+    <functioncall functionName="argv"/>
+    <functioncall functionName="checkMcuPresence"/>
+    <functioncall functionName="chipId2McuType"/>
+    <functioncall functionName="chipid"/>
+    <functioncall functionName="commandGet"/>
+    <functioncall functionName="commandGetId"/>
+    <functioncall functionName="err"/>
+    <functioncall functionName="errorCode2String"/>
+    <functioncall functionName="for"/>
+    <functioncall functionName="getBootVerStr"/>
+    <functioncall functionName="getCommand"/>
+    <functioncall functionName="getCommandListSize"/>
+    <functioncall functionName="getId"/>
+    <functioncall functionName="getresp"/>
+    <functioncall functionName="i"/>
+    <functioncall functionName="if"/>
+    <functioncall functionName="init"/>
+    <functioncall functionName="initBootLoader"/>
+    <functioncall functionName="instance"/>
+    <functioncall functionName="mcuType"/>
+    <functioncall functionName="mcuType2String"/>
+    <functioncall functionName="mcutype"/>
+    <functioncall functionName="parseCommandLine"/>
+    <functioncall functionName="return"/>
+    <functioncall functionName="static_cast"/>
+    <functioncall functionName="tryDetectMcu"/>
+    <functioncall functionName="void"/>
+  </FileInfo>
+</analyzerinfo>
