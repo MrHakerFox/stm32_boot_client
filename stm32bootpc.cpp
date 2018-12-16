@@ -32,7 +32,7 @@ int tryDetectMcu( Stm32BootClient::McuType &_mcy ) {
             err = Stm32BootClient::commandGetId(chipid);
             std::cout << Stm32BootClient::errorCode2String(err) << std::endl;
             if (err == Stm32BootClient::ErrorCode::OK) {
-                std::cout << "0x" << std::hex << chipid.getId() << std::endl;
+                std::cout << "0x" << std::hex << chipid.getId() << std::dec << std::endl;
                 Stm32BootClient::McuType mcutype = Stm32BootClient::chipId2McuType(chipid.getId());
                 std::cout << "MCU Type: " << Stm32BootClient::mcuType2String(mcutype) << std::endl;
                 std::cout << "Read MCU Specs...";
@@ -40,7 +40,7 @@ int tryDetectMcu( Stm32BootClient::McuType &_mcy ) {
                 err = Stm32BootClient::readMcuSpecificInfo(chipid.getId(), spec);
                 std::cout << Stm32BootClient::errorCode2String(err) << std::endl;
                 if (err == Stm32BootClient::ErrorCode::OK) {
-                    std::cout << "\tFlash size: " << spec.flashSize << "bytes." << std::endl;
+                    std::cout << "\tFlash size: " << spec.flashSize << " bytes." << std::endl;
                 }
             }
         }

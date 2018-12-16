@@ -235,7 +235,7 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandGetId( CommandGetIdResponse_t
 }
 Stm32BootClient::ErrorCode Stm32BootClient::commandReadMemory( void * _dst, uint32_t _addr, size_t _size ) {
     configASSERT(_dst);
-    configASSERT(_size);
+    configASSERT(_size && _size <= 0xff);
     ErrorCode err;
     size_t written;
     static const uint8_t cmd = static_cast<uint8_t>(Command::ReadMemory);
@@ -270,7 +270,28 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandReadMemory( void * _dst, uint
                                         err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::FAILED;
                                         if (err == ErrorCode::OK) {
                                             err = ( ackCode == ACK_RESP_CODE ) ? ErrorCode::ACK_OK : ErrorCode::ACK_FAILED;
-                                            if (err == ErrorCode::OK) {}
+                                            if (err == ErrorCode::ACK_OK) {
+                                                uint8_t sz = static_cast<uint8_t>(_size - 1);
+                                                uint8_t numarr[] = {sz, static_cast<uint8_t>(~sz)};
+                                                err = Stm32Io::write(numarr, sizeof( numarr ), &written);
+                                                if (err == ErrorCode::OK) {
+                                                    err = ( written == sizeof( numarr ) ) ? ErrorCode::OK : ErrorCode::FAILED;
+                                                    if (err == ErrorCode::OK) {
+                                                        err = Stm32Io::read(&ackCode, sizeof( ackCode ), &rd);
+                                                        if (err == ErrorCode::OK) {
+                                                            err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::FAILED;
+                                                            if (err == ErrorCode::OK) {
+                                                                err = ( ackCode == ACK_RESP_CODE ) ? ErrorCode::ACK_OK : ErrorCode::ACK_FAILED;
+                                                                if (err == ErrorCode::ACK_OK) {
+                                                                    err = Stm32Io::read(_dst, _size, &rd);
+                                                                    if (err == ErrorCode::OK && rd != _size)
+                                                                        err = ErrorCode::FAILED;
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -293,7 +314,7 @@ Stm32BootClient::ErrorCode Stm32BootClient::readMcuSpecificInfo( uint16_t _chipi
         if (descr.blRamBegin == 0xffffffff)
             err = ErrorCode::UNKNOWN_MCU;
         else {
-            err = commandReadMemory(&_info.flashSize, descr.flashSizeReg, sizeof( descr.flashSizeReg ));
+            err = commandReadMemory(&_info.flashSize, descr.flashSizeReg, 2);
             if (err == ErrorCode::OK) {
                 _info.flashSize *= 1024; /// as size of the device expressed in Kbytes
             }
