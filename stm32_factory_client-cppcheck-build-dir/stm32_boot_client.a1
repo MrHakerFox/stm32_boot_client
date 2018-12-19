@@ -1,17 +1,19 @@
 <?xml version="1.0"?>
-<analyzerinfo checksum="316997041">
+<analyzerinfo checksum="1411838182">
   <FileInfo check="CheckUnusedFunctions">
-    <functiondecl functionName="init" lineNumber="24"/>
-    <functiondecl functionName="checkMcuPresence" lineNumber="37"/>
-    <functiondecl functionName="errorCode2String" lineNumber="60"/>
-    <functiondecl functionName="mcuType2String" lineNumber="73"/>
-    <functiondecl functionName="mcuType2Description" lineNumber="85"/>
-    <functiondecl functionName="chipId2McuType" lineNumber="95"/>
-    <functiondecl functionName="ResetMCU" lineNumber="102"/>
-    <functiondecl functionName="commandGet" lineNumber="115"/>
-    <functiondecl functionName="commandGvRps" lineNumber="160"/>
-    <functiondecl functionName="commandGetId" lineNumber="197"/>
-    <functiondecl functionName="readMcuSpecificInfo" lineNumber="234"/>
+    <functiondecl functionName="init" lineNumber="25"/>
+    <functiondecl functionName="checkMcuPresence" lineNumber="38"/>
+    <functiondecl functionName="errorCode2String" lineNumber="61"/>
+    <functiondecl functionName="mcuType2String" lineNumber="75"/>
+    <functiondecl functionName="mcuType2Description" lineNumber="87"/>
+    <functiondecl functionName="chipId2McuType" lineNumber="97"/>
+    <functiondecl functionName="ResetMCU" lineNumber="104"/>
+    <functiondecl functionName="commandGet" lineNumber="117"/>
+    <functiondecl functionName="commandGvRps" lineNumber="162"/>
+    <functiondecl functionName="commandGetId" lineNumber="199"/>
+    <functiondecl functionName="commandReadMemory" lineNumber="237"/>
+    <functiondecl functionName="readMcuSpecificInfo" lineNumber="308"/>
+    <functiondecl functionName="calculateXor" lineNumber="326"/>
     <functioncall functionName="ACK_ASK_CODE"/>
     <functioncall functionName="ACK_FAILED"/>
     <functioncall functionName="ACK_OK"/>
@@ -22,15 +24,22 @@
     <functioncall functionName="Getid"/>
     <functioncall functionName="GvRps"/>
     <functioncall functionName="OK"/>
+    <functioncall functionName="ReadMemory"/>
     <functioncall functionName="ResetMCU"/>
     <functioncall functionName="Stm32F05xxx_F030x8"/>
     <functioncall functionName="UNKNOWN_MCU"/>
     <functioncall functionName="Unknown"/>
+    <functioncall functionName="_addr"/>
     <functioncall functionName="_chipid"/>
+    <functioncall functionName="_dst"/>
     <functioncall functionName="_errcode"/>
     <functioncall functionName="_resp"/>
+    <functioncall functionName="_size"/>
+    <functioncall functionName="_src"/>
     <functioncall functionName="_type"/>
     <functioncall functionName="ackCode"/>
+    <functioncall functionName="addr_b"/>
+    <functioncall functionName="calculateXor"/>
     <functioncall functionName="chipId2McuType"/>
     <functioncall functionName="cmd"/>
     <functioncall functionName="commandReadMemory"/>
@@ -39,6 +48,7 @@
     <functioncall functionName="false"/>
     <functioncall functionName="flashSize"/>
     <functioncall functionName="flashSizeReg"/>
+    <functioncall functionName="for"/>
     <functioncall functionName="get"/>
     <functioncall functionName="idx"/>
     <functioncall functionName="if"/>
@@ -50,19 +60,24 @@
     <functioncall functionName="msgs"/>
     <functioncall functionName="name"/>
     <functioncall functionName="nullptr"/>
+    <functioncall functionName="numarr"/>
     <functioncall functionName="rd"/>
     <functioncall functionName="read"/>
+    <functioncall functionName="reinterpret_cast"/>
     <functioncall functionName="result"/>
     <functioncall functionName="rxbuff"/>
     <functioncall functionName="setBootLine"/>
     <functioncall functionName="setResetLine"/>
     <functioncall functionName="sizeof"/>
     <functioncall functionName="static_cast"/>
+    <functioncall functionName="sz"/>
     <functioncall functionName="true"/>
     <functioncall functionName="txBuff"/>
     <functioncall functionName="txbuff"/>
+    <functioncall functionName="while"/>
     <functioncall functionName="write"/>
     <functioncall functionName="written"/>
     <functioncall functionName="writtern"/>
+    <functioncall functionName="xor_cs"/>
   </FileInfo>
 </analyzerinfo>

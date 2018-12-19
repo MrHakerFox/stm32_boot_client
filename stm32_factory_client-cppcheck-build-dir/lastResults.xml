@@ -1,15 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <results version="2">
     <cppcheck version="1.86"/>
-    <errors>
-        <error id="unusedFunction" severity="style" msg="The function &amp;#039;commandGvRps&amp;#039; is never used." verbose="The function &amp;#039;commandGvRps&amp;#039; is never used." sinceDate="15.12.2018">
-            <location file="stm32_boot_client.cpp" line="160"/>
-        </error>
-        <error id="unusedFunction" severity="style" msg="The function &amp;#039;readMcuSpecificInfo&amp;#039; is never used." verbose="The function &amp;#039;readMcuSpecificInfo&amp;#039; is never used." sinceDate="15.12.2018">
-            <location file="stm32_boot_client.cpp" line="234"/>
-        </error>
-        <error id="unusedFunction" severity="style" msg="The function &amp;#039;deinit&amp;#039; is never used." verbose="The function &amp;#039;deinit&amp;#039; is never used." sinceDate="15.12.2018">
-            <location file="stm32_io_pc.cpp" line="105"/>
-        </error>
-    </errors>
+    <errors/>
 </results>

@@ -1,3 +1,5 @@
 Debug
 Debug/*
 *.exe
+stm32_factory_client-cppcheck-build-dir
+stm32_factory_client-cppcheck-build-dir/*

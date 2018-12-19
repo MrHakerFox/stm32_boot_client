@@ -27,12 +27,14 @@ public:
         SERIAL_CANT_OPEN = 0x04,    /// Can't open serial port
         DBG_CODE = 0x05,            /// Debug code
         UNKNOWN_MCU = 0x05,         /// Unknown MCU
+        SERIAL_WR_SIZE = 0x06,      /// Cant write N bytes
     };
     enum class Command : uint8_t {
         Get = 0x00,                 /// Get the version and allowed commands
         GvRps = 0x01,               /// Get Version & Read protection Status command
         Getid = 0x02,               /// Get the chip Id
         ReadMemory = 0x11,          /// Read memory up to 256 bytes
+        Go = 0x21,                    /// Execute the downloaded code777
     };
     typedef struct __packed CommandGetResponse_t {
     public:
@@ -104,6 +106,7 @@ public:
     static ErrorCode commandGvRps( CommandGvRpsResponse_t &_resp );
     static ErrorCode commandGetId( CommandGetIdResponse_t &_resp );
     static ErrorCode commandReadMemory( void * _dst, uint32_t _addr, size_t _size );
+    static ErrorCode commandGo( uint32_t _addr );
     static ErrorCode readMcuSpecificInfo( uint16_t _chipid, McuSpecificInfo_t &_info );
 protected:
 private:
@@ -115,5 +118,6 @@ private:
 
     static void ResetMCU();
     static uint8_t calculateXor( const uint8_t * _src, size_t _size );
+    static ErrorCode commandGenericSend( Command _cmd );
 };
 #endif

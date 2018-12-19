@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
-<analyzerinfo checksum="2471736863">
+<analyzerinfo checksum="2906308157">
   <FileInfo check="CheckUnusedFunctions">
     <functiondecl functionName="parseCommandLine" lineNumber="3"/>
     <functiondecl functionName="tryDetectMcu" lineNumber="9"/>
-    <functiondecl functionName="initBootLoader" lineNumber="43"/>
-    <functiondecl functionName="main" lineNumber="49"/>
+    <functiondecl functionName="initBootLoader" lineNumber="50"/>
+    <functiondecl functionName="main" lineNumber="56"/>
     <functioncall functionName="Settings_t"/>
     <functioncall functionName="Unknown"/>
     <functioncall functionName="_mcy"/>
@@ -32,7 +32,9 @@
     <functioncall functionName="mcuType2String"/>
     <functioncall functionName="mcutype"/>
     <functioncall functionName="parseCommandLine"/>
+    <functioncall functionName="readMcuSpecificInfo"/>
     <functioncall functionName="return"/>
+    <functioncall functionName="spec"/>
     <functioncall functionName="static_cast"/>
     <functioncall functionName="tryDetectMcu"/>
     <functioncall functionName="void"/>

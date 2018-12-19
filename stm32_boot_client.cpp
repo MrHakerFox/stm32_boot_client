@@ -66,7 +66,8 @@ std::string Stm32BootClient::errorCode2String( ErrorCode _errcode ) {
         "No ACK received",
         "Can't open serial port",
         "Debug code",
-        "Unknown MCU type"
+        "Unknown MCU type",
+        "Can't write N bytes to serial port"
     };
     size_t idx = static_cast<int>(_errcode);
     configASSERT(idx < ARRAY_SIZE(msgs));
@@ -233,6 +234,7 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandGetId( CommandGetIdResponse_t
     }
     return err;
 }
+// TODO Check with RDP is active, must be twon NACKS
 Stm32BootClient::ErrorCode Stm32BootClient::commandReadMemory( void * _dst, uint32_t _addr, size_t _size ) {
     configASSERT(_dst);
     configASSERT(_size && _size <= 0xff);
@@ -304,6 +306,7 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandReadMemory( void * _dst, uint
     }
     return err;
 }
+Stm32BootClient::ErrorCode Stm32BootClient::commandGo( uint32_t _addr ) {}
 Stm32BootClient::ErrorCode Stm32BootClient::readMcuSpecificInfo( uint16_t _chipid, McuSpecificInfo_t &_info ) {
     ErrorCode err;
     McuType mcu = chipId2McuType(_chipid);
@@ -333,4 +336,16 @@ uint8_t Stm32BootClient::calculateXor( const uint8_t * _src, size_t _size ) {
     }
     return result;
     ;
+}
+Stm32BootClient::ErrorCode Stm32BootClient::commandGenericSend( Command _cmd ) {
+    ErrorCode err;
+    size_t written;
+    uint8_t cmd = static_cast<uin8_t>(_cmd);
+    uint8_t txBuff[] = { cmd, static_cast<uint8_t>(~cmd)};
+    err = Stm32Io::write(txBuff, sizeof( txBuff ), &written);
+    if (err == ErrorCode::OK) {
+        err = ( written == sizeof( txBuff ) ) ? ErrorCode::OK : ErrorCode::SERIAL_WR_SIZE;
+        if (err == ErrorCode::OK) {}
+    }
+    return err;
 }
