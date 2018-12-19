@@ -119,5 +119,6 @@ private:
     static void ResetMCU();
     static uint8_t calculateXor( const uint8_t * _src, size_t _size );
     static ErrorCode commandGenericSend( Command _cmd );
+    static void addr32_to_byte( uint32_t _addr, uint8_t * _array );
 };
 #endif

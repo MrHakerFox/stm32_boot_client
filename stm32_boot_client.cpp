@@ -243,13 +243,10 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandReadMemory( void * _dst, uint
     err = commandGenericSend(Command::ReadMemory);
     if (err == ErrorCode::ACK_OK) {
         err = ErrorCode::OK;
-        for ( size_t addr_b_count = 0; addr_b_count < sizeof( _addr ) && err == ErrorCode::OK; addr_b_count++ ) {
-            uint8_t addr_b = static_cast<uint8_t>(_addr >> ( 24 - addr_b_count * 8 ));
-            err = Stm32Io::write(&addr_b, sizeof( addr_b ), &written);
-            if (err == ErrorCode::OK && written != sizeof( addr_b ))
-                err = ErrorCode::FAILED;
-        }
-        if (err == ErrorCode::OK) {
+        uint8_t addr_array[4];
+        addr32_to_byte(_addr, addr_array);
+        err = Stm32Io::write(addr_array, sizeof( addr_array ), &written);
+        if (err == ErrorCode::OK && written == sizeof( addr_array )) {
             uint8_t xor_cs = calculateXor(reinterpret_cast<uint8_t *>(&_addr), sizeof( _addr ));
             err = Stm32Io::write(&xor_cs, sizeof( xor_cs ), &written);
             if (err == ErrorCode::OK) {
@@ -347,4 +344,10 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandGenericSend( Command _cmd ) {
         }
     }
     return err;
+}
+void Stm32BootClient::addr32_to_byte( uint32_t _addr, uint8_t * _array ) {
+    configASSERT(_array);
+    for ( size_t addr_b_count = 0; addr_b_count < sizeof( _addr ) && _array; addr_b_count++ ) {
+        *_array++ = static_cast<uint8_t>(_addr >> ( 24 - addr_b_count * 8 ));
+    }
 }
