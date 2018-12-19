@@ -242,15 +242,13 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandReadMemory( void * _dst, uint
     size_t written;
     err = commandGenericSend(Command::ReadMemory);
     if (err == ErrorCode::ACK_OK) {
-        err = ErrorCode::OK;
-        uint8_t addr_array[4];
-        addr32_to_byte(_addr, addr_array);
-        err = Stm32Io::write(addr_array, sizeof( addr_array ), &written);
-        if (err == ErrorCode::OK && written == sizeof( addr_array )) {
-            uint8_t xor_cs = calculateXor(reinterpret_cast<uint8_t *>(&_addr), sizeof( _addr ));
-            err = Stm32Io::write(&xor_cs, sizeof( xor_cs ), &written);
+        err = genericSendAddr(_addr);
+        if (err == ErrorCode::ACK_OK) {
+            uint8_t sz = static_cast<uint8_t>(_size - 1);
+            uint8_t numarr[] = {sz, static_cast<uint8_t>(~sz)};
+            err = Stm32Io::write(numarr, sizeof( numarr ), &written);
             if (err == ErrorCode::OK) {
-                err = ( written == sizeof( xor_cs ) ) ? ErrorCode::OK : ErrorCode::FAILED;
+                err = ( written == sizeof( numarr ) ) ? ErrorCode::OK : ErrorCode::FAILED;
                 if (err == ErrorCode::OK) {
                     uint8_t ackCode;
                     size_t rd;
@@ -260,26 +258,9 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandReadMemory( void * _dst, uint
                         if (err == ErrorCode::OK) {
                             err = ( ackCode == ACK_RESP_CODE ) ? ErrorCode::ACK_OK : ErrorCode::ACK_FAILED;
                             if (err == ErrorCode::ACK_OK) {
-                                uint8_t sz = static_cast<uint8_t>(_size - 1);
-                                uint8_t numarr[] = {sz, static_cast<uint8_t>(~sz)};
-                                err = Stm32Io::write(numarr, sizeof( numarr ), &written);
-                                if (err == ErrorCode::OK) {
-                                    err = ( written == sizeof( numarr ) ) ? ErrorCode::OK : ErrorCode::FAILED;
-                                    if (err == ErrorCode::OK) {
-                                        err = Stm32Io::read(&ackCode, sizeof( ackCode ), &rd);
-                                        if (err == ErrorCode::OK) {
-                                            err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::FAILED;
-                                            if (err == ErrorCode::OK) {
-                                                err = ( ackCode == ACK_RESP_CODE ) ? ErrorCode::ACK_OK : ErrorCode::ACK_FAILED;
-                                                if (err == ErrorCode::ACK_OK) {
-                                                    err = Stm32Io::read(_dst, _size, &rd);
-                                                    if (err == ErrorCode::OK && rd != _size)
-                                                        err = ErrorCode::FAILED;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
+                                err = Stm32Io::read(_dst, _size, &rd);
+                                if (err == ErrorCode::OK && rd != _size)
+                                    err = ErrorCode::FAILED;
                             }
                         }
                     }
@@ -290,8 +271,37 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandReadMemory( void * _dst, uint
     return err;
 }
 Stm32BootClient::ErrorCode Stm32BootClient::commandGo( uint32_t _addr ) {
-    (void)_addr;
-    return ErrorCode::OK;
+    ErrorCode err = commandGenericSend(Command::Go);
+    if (err == ErrorCode::ACK_OK) {
+        err = genericSendAddr(_addr);
+    }
+    return err;
+}
+Stm32BootClient::ErrorCode Stm32BootClient::genericSendAddr( uint32_t _addr ) {
+    ErrorCode err;
+    uint8_t addr_array[4];
+    addr32_to_byte(_addr, addr_array);
+    size_t written;
+    err = Stm32Io::write(addr_array, sizeof( addr_array ), &written);
+    if (err == ErrorCode::OK && written == sizeof( addr_array )) {
+        uint8_t xor_cs = calculateXor(reinterpret_cast<uint8_t *>(&_addr), sizeof( _addr ));
+        err = Stm32Io::write(&xor_cs, sizeof( xor_cs ), &written);
+        if (err == ErrorCode::OK) {
+            err = ( written == sizeof( xor_cs ) ) ? ErrorCode::OK : ErrorCode::SERIAL_WR_SIZE;
+            if (err == ErrorCode::OK) {
+                uint8_t ackCode;
+                size_t rd;
+                err = Stm32Io::read(&ackCode, sizeof( ackCode ), &rd);
+                if (err == ErrorCode::OK) {
+                    err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::SERIAL_RD_SIZE;
+                    if (err == ErrorCode::OK) {
+                        err = ( ackCode == ACK_RESP_CODE ) ? ErrorCode::ACK_OK : ErrorCode::ACK_FAILED;
+                    }
+                }
+            }
+        }
+    }
+    return err;
 }
 Stm32BootClient::ErrorCode Stm32BootClient::readMcuSpecificInfo( uint16_t _chipid, McuSpecificInfo_t &_info ) {
     ErrorCode err;

@@ -28,6 +28,7 @@ public:
         DBG_CODE = 0x05,            /// Debug code
         UNKNOWN_MCU = 0x05,         /// Unknown MCU
         SERIAL_WR_SIZE = 0x06,      /// Cant write N bytes
+        SERIAL_RD_SIZE = 0x07,      /// Cant read N bytes
     };
     enum class Command : uint8_t {
         Get = 0x00,                 /// Get the version and allowed commands
@@ -119,6 +120,7 @@ private:
     static void ResetMCU();
     static uint8_t calculateXor( const uint8_t * _src, size_t _size );
     static ErrorCode commandGenericSend( Command _cmd );
+    static ErrorCode genericSendAddr( uint32_t _addr );
     static void addr32_to_byte( uint32_t _addr, uint8_t * _array );
 };
 #endif
