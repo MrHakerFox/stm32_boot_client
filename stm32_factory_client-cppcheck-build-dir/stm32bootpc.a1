@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<analyzerinfo checksum="2906308157">
+<analyzerinfo checksum="3144740008">
   <FileInfo check="CheckUnusedFunctions">
     <functiondecl functionName="parseCommandLine" lineNumber="3"/>
     <functiondecl functionName="tryDetectMcu" lineNumber="9"/>
