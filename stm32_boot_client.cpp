@@ -238,7 +238,7 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandGetId( CommandGetIdResponse_t
 // TODO Check with RDP is active, must be twon NACKS
 Stm32BootClient::ErrorCode Stm32BootClient::commandReadMemory( void * _dst, uint32_t _addr, size_t _size ) {
     configASSERT(_dst);
-    configASSERT(_size && _size <= 0xff);
+    configASSERT(_size && _size <= 0x100);
     ErrorCode err;
     size_t written;
     err = commandGenericSend(Command::ReadMemory);
@@ -275,6 +275,50 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandGo( uint32_t _addr ) {
     ErrorCode err = commandGenericSend(Command::Go);
     if (err == ErrorCode::ACK_OK) {
         err = genericSendAddr(_addr);
+    }
+    return err;
+}
+Stm32BootClient::ErrorCode Stm32BootClient::commandWriteMemory( const void * _src, uint32_t _addr, size_t _size ) {
+    configASSERT(_src);
+    configASSERT(_size && _size <= 0x100 && !( _size % 4 ));
+    ErrorCode err = commandGenericSend(Command::WriteMem);
+    if (err == ErrorCode::ACK_OK) {
+        err = genericSendAddr(_addr);
+        if (err == ErrorCode::ACK_OK) {
+            uint8_t sz = static_cast<uint8_t>(_size - 1);
+            uint8_t numarr[] = {sz, static_cast<uint8_t>(~sz)};
+            size_t written;
+            err = Stm32Io::write(numarr, sizeof( numarr ), &written);
+            if (err == ErrorCode::OK) {
+                err = ( written == sizeof( numarr ) ) ? ErrorCode::OK : ErrorCode::SERIAL_WR_SIZE;
+                if (err == ErrorCode::OK) {
+                    uint8_t ackCode;
+                    size_t rd;
+                    err = Stm32Io::read(&ackCode, sizeof( ackCode ), &rd);
+                    if (err == ErrorCode::OK) {
+                        err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::FAILED;
+                        if (err == ErrorCode::OK) {
+                            err = ( ackCode == ACK_RESP_CODE ) ? ErrorCode::ACK_OK : ErrorCode::ACK_FAILED;
+                            if (err == ErrorCode::ACK_OK) {
+                                err = Stm32Io::write(_src, _size, &written);
+                                if (err == ErrorCode::OK) {
+                                    err = ( written == sizeof( numarr ) ) ? ErrorCode::OK : ErrorCode::SERIAL_WR_SIZE;
+                                    if (err == ErrorCode::OK) {
+                                        err = Stm32Io::read(&ackCode, sizeof( ackCode ), &rd);
+                                        if (err == ErrorCode::OK) {
+                                            err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::FAILED;
+                                            if (err == ErrorCode::OK) {
+                                                err = ( ackCode == ACK_RESP_CODE ) ? ErrorCode::OK : ErrorCode::ACK_FAILED;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     return err;
 }
