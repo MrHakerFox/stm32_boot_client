@@ -41,6 +41,7 @@ Stm32BootClient::ErrorCode Stm32BootClient::checkMcuPresence() {
     size_t writtern;
     Stm32Io::setBootLine(true);
     ResetMCU();
+    Stm32Io::setBootLine(false);
     result = Stm32Io::write(txbuff, sizeof( txbuff ), &writtern);
     if (result == ErrorCode::OK) {
         result = ( writtern == sizeof( txbuff ) ) ? ErrorCode::OK : ErrorCode::FAILED;
@@ -281,6 +282,7 @@ Stm32BootClient::ErrorCode Stm32BootClient::genericSendAddr( uint32_t _addr ) {
     ErrorCode err;
     uint8_t addr_array[4];
     addr32_to_byte(_addr, addr_array);
+    //std::cout << std::hex << (int)addr_array[0] << " " << (int)addr_array[1] << " " << (int)addr_array[2] << " " << (int)addr_array[3];
     size_t written;
     err = Stm32Io::write(addr_array, sizeof( addr_array ), &written);
     if (err == ErrorCode::OK && written == sizeof( addr_array )) {
@@ -295,6 +297,7 @@ Stm32BootClient::ErrorCode Stm32BootClient::genericSendAddr( uint32_t _addr ) {
                 if (err == ErrorCode::OK) {
                     err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::SERIAL_RD_SIZE;
                     if (err == ErrorCode::OK) {
+                        /// TODO Maby two NACKs
                         err = ( ackCode == ACK_RESP_CODE ) ? ErrorCode::ACK_OK : ErrorCode::ACK_FAILED;
                     }
                 }

@@ -114,7 +114,10 @@ Stm32BootClient::ErrorCode Stm32Io::deinit() {
  * @param _level true - hight level, false - low level
  */
 void Stm32Io::setResetLine( bool _level ) {
-    (void)_level;
+    if (!_level) {
+        std::cout << "Reset MCU, press ENTER...";
+        std::cin.get();
+    }
 }
 /*!
  * Function: setBootLine 
@@ -125,9 +128,9 @@ void Stm32Io::setResetLine( bool _level ) {
  */
 void Stm32Io::setBootLine( bool _level ) {
     if (_level) {
-        std::cout << "Set BOOT0 to high, reset MCU, press ENTER...";
+        std::cout << "Set BOOT0 to high, press ENTER...";
     } else {
-        std::cout << "Set BOOT0 to low, reset MCU, press ENTER...";
+        std::cout << "Set BOOT0 to low, press ENTER...";
     }
     std::cin.get();
 }
