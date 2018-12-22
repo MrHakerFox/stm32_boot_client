@@ -287,8 +287,7 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandWriteMemory( const void * _sr
         err = genericSendAddr(_addr);
         if (err == ErrorCode::OK) {
             uint8_t sz = static_cast<uint8_t>(_size - 1);
-            uint8_t xor_cs = calculateXor(static_cast<const uint8_t *>(_src), _size);
-            xor_cs ^= sz;
+            uint8_t xor_cs = calculateXor(static_cast<const uint8_t *>(_src), _size) ^ sz;
             size_t written;
             err = Stm32Io::write(&sz, sizeof( sz ), &written);
             if (err == ErrorCode::OK) {
@@ -315,6 +314,51 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandWriteMemory( const void * _sr
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+    return err;
+}
+// if _pagenumarray == nullptr then we do global erase
+Stm32BootClient::ErrorCode Stm32BootClient::commandErase( const uint8_t * _pagenumarray, size_t _count ) {
+    auto err = commandGenericSend(Command::Erase);
+    if (err == ErrorCode::ACK_OK) {
+        size_t written;
+        if (_pagenumarray == nullptr) {
+            uint8_t txarr[] = {0xff, 0};
+            err = Stm32Io::write(txarr, sizeof( txarr ), &written);
+            if (err == ErrorCode::OK) {
+                err = ( written == sizeof( txarr ) ) ? ErrorCode::OK : ErrorCode::SERIAL_WR_SIZE;
+            }
+        } else {
+            uint8_t sz = static_cast<uint8_t>(_count);
+            uint8_t xor_cs = calculateXor(_pagenumarray, _count) ^ sz;
+            err = Stm32Io::write(&sz, sizeof( sz ), &written);
+            if (err == ErrorCode::OK) {
+                err = ( written == sizeof( sz ) ) ? ErrorCode::OK : ErrorCode::SERIAL_WR_SIZE;
+                if (err == ErrorCode::OK) {
+                    err = Stm32Io::write(_pagenumarray, _count, &written);
+                    if (err == ErrorCode::OK) {
+                        err = ( written == _count ) ? ErrorCode::OK : ErrorCode::SERIAL_WR_SIZE;
+                        if (err == ErrorCode::OK) {
+                            err = Stm32Io::write(&xor_cs, sizeof( xor_cs ), &written);
+                            if (err == ErrorCode::OK) {
+                                err = ( written == sizeof( xor_cs ) ) ? ErrorCode::OK : ErrorCode::SERIAL_WR_SIZE;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (err == ErrorCode::OK) {
+            uint8_t ackCode;
+            size_t rd;
+            err = Stm32Io::read(&ackCode, sizeof( ackCode ), &rd);
+            if (err == ErrorCode::OK) {
+                err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::FAILED;
+                if (err == ErrorCode::OK) {
+                    err = ( ackCode == ACK_RESP_CODE ) ? ErrorCode::OK : ErrorCode::ACK_FAILED;
                 }
             }
         }

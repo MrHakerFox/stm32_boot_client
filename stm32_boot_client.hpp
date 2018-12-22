@@ -37,6 +37,7 @@ public:
         ReadMemory = 0x11,          /// Read memory up to 256 bytes
         Go = 0x21,                    /// Execute the downloaded code777
         WriteMem = 0x31,            /// Write memory up to 256 bytes
+        Erase = 0x43,               ///  Erase from one to all the Flash pages
     };
     typedef struct __packed CommandGetResponse_t {
     public:
@@ -109,7 +110,8 @@ public:
     static ErrorCode commandGetId( CommandGetIdResponse_t &_resp );
     static ErrorCode commandReadMemory( void * _dst, uint32_t _addr, size_t _size );
     static ErrorCode commandGo( uint32_t _addr );
-    static ErrorCode commandWriteMemory(const void * _src, uint32_t _addr, size_t _size );
+    static ErrorCode commandWriteMemory( const void * _src, uint32_t _addr, size_t _size );
+    static ErrorCode commandErase( const uint8_t * _pagenumarray = nullptr, size_t _count = 0 );
     static ErrorCode readMcuSpecificInfo( uint16_t _chipid, McuSpecificInfo_t &_info );
 protected:
 private:
