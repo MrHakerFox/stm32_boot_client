@@ -365,6 +365,52 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandErase( const uint8_t * _pagen
     }
     return err;
 }
+Stm32BootClient::ErrorCode Stm32BootClient::commandExtendedErase( const uint16_t * _pagenumarray, uint16_t _count ) {
+    auto err = commandGenericSend(Command::ExtErase);
+    if (err == ErrorCode::ACK_OK) {
+        size_t written;
+        if (_count == EXT_MASS_ERASE || _count == EXT_BANK1_ERASE || _count == EXT_BANK2_ERASE) {
+            uint16_t txarray[] = {_count, static_cast<uint16_t>(~_count)};
+            err = Stm32Io::write(txarray, sizeof( txarray ), &written);
+            if (err == ErrorCode::OK) {
+                err = ( written == sizeof( txarray ) ) ? ErrorCode::OK : ErrorCode::SERIAL_WR_SIZE;
+            }
+        } else {
+            uint16_t sz = _count;
+            sz--;
+            uint8_t xor_cs = calculateXor(reinterpret_cast<const uint8_t *>(_pagenumarray), 2 * _count);
+            xor_cs = xor_cs ^ calculateXor(reinterpret_cast<const uint8_t *>(&sz), sizeof( sz ));
+            err = serialWrite16(&_count, 1, &written);
+            if (err == ErrorCode::OK) {
+                err = ( written == 1 ) ? ErrorCode::OK : ErrorCode::SERIAL_WR_SIZE;
+                if (err == ErrorCode::OK) {
+                    err = serialWrite16(_pagenumarray, _count, &written);
+                    if (err == ErrorCode::OK) {
+                        err = ( written == _count ) ? ErrorCode::OK : ErrorCode::SERIAL_WR_SIZE;
+                        if (err == ErrorCode::OK) {
+                            err = Stm32Io::write(&xor_cs, sizeof( xor_cs ), &written);
+                            if (err == ErrorCode::OK) {
+                                err = ( written == sizeof( xor_cs ) ) ? ErrorCode::OK : ErrorCode::SERIAL_WR_SIZE;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (err == ErrorCode::OK) {
+            uint8_t ackCode;
+            size_t rd;
+            err = Stm32Io::read(&ackCode, sizeof( ackCode ), &rd);
+            if (err == ErrorCode::OK) {
+                err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::SERIAL_RD_SIZE;
+                if (err == ErrorCode::OK) {
+                    err = ( ackCode == ACK_RESP_CODE ) ? ErrorCode::OK : ErrorCode::ACK_FAILED;
+                }
+            }
+        }
+    }
+    return err;
+}
 Stm32BootClient::ErrorCode Stm32BootClient::genericSendAddr( uint32_t _addr ) {
     ErrorCode err;
     uint8_t addr_array[4];
@@ -450,4 +496,32 @@ void Stm32BootClient::addr32_to_byte( uint32_t _addr, uint8_t * _array ) {
     for ( size_t addr_b_count = 0; addr_b_count < sizeof( _addr ) && _array; addr_b_count++ ) {
         *_array++ = static_cast<uint8_t>(_addr >> ( 24 - addr_b_count * 8 ));
     }
+}
+/*!
+ * Function: serialWrite16 
+ * Sends an array of uint16_t, MSB first.
+ * 
+ * @param _src pointer to data.
+ * @param _size size in half-words (2 bytes).
+ * @param _written a number of half-words written to serial port.
+ * 
+ * @return Stm32BootClient::ErrorCode 
+ */
+Stm32BootClient::ErrorCode Stm32BootClient::serialWrite16( const uint16_t * _src, size_t _size, size_t * _written ) {
+    auto err = ErrorCode::OK;
+    configASSERT(_src);
+    if (_written)
+        *_written = 0;
+    while (_size-- && err == ErrorCode::OK) {
+        uint8_t txarr[] = {static_cast<uint8_t>(( *_src >> 8 ) & 0xff), static_cast<uint8_t>(*_src & 0xff)};
+        _src++;
+        size_t written;
+        err = Stm32Io::write(txarr, sizeof( txarr ), &written);
+        if (err == ErrorCode::OK) {
+            err = ( written == sizeof( txarr ) ) ? ErrorCode::OK : ErrorCode::SERIAL_WR_SIZE;
+            if (err == ErrorCode::OK)
+                ( *_written )++;
+        }
+    }
+    return err;
 }

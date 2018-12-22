@@ -38,7 +38,11 @@ public:
         Go = 0x21,                    /// Execute the downloaded code777
         WriteMem = 0x31,            /// Write memory up to 256 bytes
         Erase = 0x43,               ///  Erase from one to all the Flash pages
+        ExtErase = 0x44,            /// Erases from one to all pages using two-byte addressing mode
     };
+    static const uint16_t EXT_MASS_ERASE = 0xffff;
+    static const uint16_t EXT_BANK1_ERASE = 0xfffe;
+    static const uint16_t EXT_BANK2_ERASE = 0xfffd;
     typedef struct __packed CommandGetResponse_t {
     public:
         void getBootVer( uint8_t &_high, uint8_t &_low ) {
@@ -112,6 +116,7 @@ public:
     static ErrorCode commandGo( uint32_t _addr );
     static ErrorCode commandWriteMemory( const void * _src, uint32_t _addr, size_t _size );
     static ErrorCode commandErase( const uint8_t * _pagenumarray = nullptr, size_t _count = 0 );
+    static ErrorCode commandExtendedErase( const uint16_t * _pagenumarray, uint16_t _count );
     static ErrorCode readMcuSpecificInfo( uint16_t _chipid, McuSpecificInfo_t &_info );
 protected:
 private:
@@ -126,5 +131,6 @@ private:
     static ErrorCode commandGenericSend( Command _cmd );
     static ErrorCode genericSendAddr( uint32_t _addr );
     static void addr32_to_byte( uint32_t _addr, uint8_t * _array );
+    static ErrorCode serialWrite16( const uint16_t * _src, size_t _size, size_t * _written );
 };
 #endif
