@@ -118,6 +118,7 @@ public:
     static ErrorCode commandErase( const uint8_t * _pagenumarray = nullptr, size_t _count = 0 );
     static ErrorCode commandExtendedErase( const uint16_t * _pagenumarray, uint16_t _count );
     static ErrorCode readMcuSpecificInfo( uint16_t _chipid, McuSpecificInfo_t &_info );
+    static ErrorCode readMemory( void * _dst, uint32_t _addr, size_t _size );
 protected:
 private:
     static const McuDescription_t m_mcuDescription[];

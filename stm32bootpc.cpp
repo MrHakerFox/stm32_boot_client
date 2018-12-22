@@ -42,6 +42,15 @@ int tryDetectMcu( Stm32BootClient::McuType &_mcy ) {
                 if (err == Stm32BootClient::ErrorCode::OK) {
                     std::cout << "\tFlash size: " << spec.flashSize << " bytes." << std::endl;
 
+                    std::cout << "Allocate buffer for file...";
+                    uint8_t * fbuff = new uint8_t[spec.flashSize];
+                    if (fbuff) {
+                        std::cout << "Reading from flash to file...";
+                        err = Stm32BootClient::readMemory(fbuff, 0x08000000, spec.flashSize);
+                        std::cout << Stm32BootClient::errorCode2String(err) << std::endl;
+                        delete [] fbuff;
+                    }
+
                     std::cout << "Try Go...";
                     err = Stm32BootClient::commandGo(0x08000000);
                     std::cout << Stm32BootClient::errorCode2String(err) << std::endl;

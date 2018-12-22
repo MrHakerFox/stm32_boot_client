@@ -525,3 +525,19 @@ Stm32BootClient::ErrorCode Stm32BootClient::serialWrite16( const uint16_t * _src
     }
     return err;
 }
+Stm32BootClient::ErrorCode Stm32BootClient::readMemory( void * _dst, uint32_t _addr, size_t _size ) {
+    configASSERT(_dst);
+    auto err = ErrorCode::OK;
+    while (_size && err == ErrorCode::OK) {
+        size_t bytes_to_send = ( _size > 256 ) ? 256 : _size;
+        _size -= bytes_to_send;
+        err = commandReadMemory(_dst, _addr, bytes_to_send);
+        if (err == ErrorCode::OK) {
+            uint8_t * pArithm = static_cast<uint8_t *>(_dst);
+            pArithm += bytes_to_send;
+            _dst = pArithm;
+            _addr += static_cast<uint32_t>(bytes_to_send);
+        }
+    }
+    return err;
+}
