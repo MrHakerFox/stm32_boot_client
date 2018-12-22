@@ -1,5 +1,6 @@
 #include "stm32bootpc.hpp"
 #include <iostream>
+#include <fstream>
 Settings_t parseCommandLine( int argc, char * argv[] ) {
     /// TODO Add code
     (void)argc;
@@ -48,6 +49,11 @@ int tryDetectMcu( Stm32BootClient::McuType &_mcy ) {
                         std::cout << "Reading from flash to file...";
                         err = Stm32BootClient::readMemory(fbuff, 0x08000000, spec.flashSize);
                         std::cout << Stm32BootClient::errorCode2String(err) << std::endl;
+                        std::cout << "Writing file..." << std::endl;
+                        std::ofstream ofile;
+                        ofile.open("read_by_me.bin", std::ios::out | std::ios::binary);
+                        ofile.write(reinterpret_cast<const char *>(fbuff), spec.flashSize);
+                        ofile.close();
                         delete [] fbuff;
                     }
 
