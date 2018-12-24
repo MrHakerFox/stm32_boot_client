@@ -285,7 +285,7 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandWriteMemory( const void * _sr
     ErrorCode err = commandGenericSend(Command::WriteMem);
     if (err == ErrorCode::ACK_OK) {
         err = genericSendAddr(_addr);
-        if (err == ErrorCode::OK) {
+        if (err == ErrorCode::ACK_OK) {
             uint8_t sz = static_cast<uint8_t>(_size - 1);
             uint8_t xor_cs = calculateXor(static_cast<const uint8_t *>(_src), _size) ^ sz;
             size_t written;
@@ -536,6 +536,22 @@ Stm32BootClient::ErrorCode Stm32BootClient::readMemory( void * _dst, uint32_t _a
             uint8_t * pArithm = static_cast<uint8_t *>(_dst);
             pArithm += bytes_to_send;
             _dst = pArithm;
+            _addr += static_cast<uint32_t>(bytes_to_send);
+        }
+    }
+    return err;
+}
+Stm32BootClient::ErrorCode Stm32BootClient::writeMemory( const void * _src, uint32_t _addr, size_t _size ) {
+    configASSERT(_src);
+    auto err = ErrorCode::OK;
+    while (_size && err == ErrorCode::OK) {
+        size_t bytes_to_send = ( _size > 256 ) ? 256 : _size;
+        _size -= bytes_to_send;
+        err = commandWriteMemory(_src, _addr, bytes_to_send);
+        if (err == ErrorCode::OK) {
+            const uint8_t * pArithm = static_cast<const uint8_t *>(_src);
+            pArithm += bytes_to_send;
+            _src = pArithm;
             _addr += static_cast<uint32_t>(bytes_to_send);
         }
     }

@@ -64,6 +64,9 @@ int tryDetectMcu( Stm32BootClient::McuType &_mcy ) {
                         std::cout << "size " << length;
                         ifile.read(reinterpret_cast<char *>(fbuff), length);
                         ifile.close();
+                        std::cout << "Triyng to write to flash...";
+                        err = Stm32BootClient::writeMemory(fbuff, 0x08000000, length);
+                        std::cout << Stm32BootClient::errorCode2String(err) << std::endl;
                         delete [] fbuff;
                     }
 
