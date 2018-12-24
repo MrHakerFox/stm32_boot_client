@@ -46,14 +46,24 @@ int tryDetectMcu( Stm32BootClient::McuType &_mcy ) {
                     std::cout << "Allocate buffer for file...";
                     uint8_t * fbuff = new uint8_t[spec.flashSize];
                     if (fbuff) {
-                        std::cout << "Reading from flash to file...";
-                        err = Stm32BootClient::readMemory(fbuff, 0x08000000, spec.flashSize);
-                        std::cout << Stm32BootClient::errorCode2String(err) << std::endl;
-                        std::cout << "Writing file..." << std::endl;
-                        std::ofstream ofile;
-                        ofile.open("read_by_me.bin", std::ios::out | std::ios::binary);
-                        ofile.write(reinterpret_cast<const char *>(fbuff), spec.flashSize);
-                        ofile.close();
+//                      std::cout << "Reading from flash to file...";
+//                      err = Stm32BootClient::readMemory(fbuff, 0x08000000, spec.flashSize);
+//                      std::cout << Stm32BootClient::errorCode2String(err) << std::endl;
+//                      std::cout << "Writing file..." << std::endl;
+//                      std::ofstream ofile;
+//                      ofile.open("read_by_me.bin", std::ios::out | std::ios::binary);
+//                      ofile.write(reinterpret_cast<const char *>(fbuff), spec.flashSize);
+//                      ofile.close();
+
+                        std::cout << "Reading file from disk...";
+                        std::ifstream ifile;
+                        ifile.open("test_by_iar.bin", std::ios::in | std::ios::binary);
+                        ifile.seekg(0, std::ios::end);
+                        size_t length = ifile.tellg();
+                        ifile.seekg(0, std::ios::beg);
+                        std::cout << "size " << length;
+                        ifile.read(reinterpret_cast<char *>(fbuff), length);
+                        ifile.close();
                         delete [] fbuff;
                     }
 
