@@ -1,4 +1,4 @@
-/*! 
+    /*! 
   /brief This file contains all needed algorithms to operate with in-build STM32 bootloaders.
   */
 #include "stm32_boot_client.hpp"
