@@ -4,9 +4,9 @@
     <platform>Unspecified</platform>
     <analyze-all-vs-configs>true</analyze-all-vs-configs>
     <includedir>
-        <dir name="E:/My/Projects/LAB/Software/boots/stm32_factory_client/"/>
+        <dir name="E:/My/Projects/LAB/Software/boots/stm32_boot_client/"/>
     </includedir>
     <paths>
-        <dir name="E:/My/Projects/LAB/Software/boots/stm32_factory_client"/>
+        <dir name="E:/My/Projects/LAB/Software/boots/stm32_boot_client"/>
     </paths>
 </project>
