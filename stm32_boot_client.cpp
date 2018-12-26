@@ -1,6 +1,6 @@
-    /*! 
-  /brief This file contains all needed algorithms to operate with in-build STM32 bootloaders.
-  */
+/*! 
+/brief This file contains all needed algorithms to operate with in-build STM32 bootloaders.
+*/
 #include "stm32_boot_client.hpp"
 #include "stm32_io_pc.hpp"
 const Stm32BootClient::McuDescription_t Stm32BootClient::m_mcuDescription[] = {
@@ -554,6 +554,19 @@ Stm32BootClient::ErrorCode Stm32BootClient::writeMemory( const void * _src, uint
             _src = pArithm;
             _addr += static_cast<uint32_t>(bytes_to_send);
         }
+    }
+    return err;
+}
+Stm32BootClient::ErrorCode Stm32BootClient::eraseAllMemory() {
+    CommandGetResponse_t getresp;
+    bool isExtendedSupport = false;
+    auto err = commandGet(getresp);
+    if (err == ErrorCode::OK) {
+        for ( size_t cmd = 0; cmd < getresp.getCommandListSize(); cmd++ ) {
+            if (getresp.getCommand(cmd) == Command::ExtErase)
+                isExtendedSupport = true;
+        }
+        err = isExtendedSupport ? commandExtendedErase(nullptr, EXT_MASS_ERASE) : commandErase();
     }
     return err;
 }

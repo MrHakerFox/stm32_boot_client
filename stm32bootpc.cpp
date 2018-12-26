@@ -72,14 +72,14 @@ int tryDetectMcu( Stm32BootClient::McuType &_mcy ) {
 //                      std::cout << Stm32BootClient::errorCode2String(err) << std::endl;
 
 
-                        memset(fbuff, 0xff, spec.flashSize);
-                        std::cout << "Try to fill whole flash with 0's...";
-                        err = Stm32BootClient::writeMemory(fbuff, 0x08000000, spec.flashSize);
-                        std::cout << Stm32BootClient::errorCode2String(err) << std::endl;
-
-//                      std::cout << "Try to erase whole flash..." << std::endl;
-//                      err = Stm32BootClient::commandExtendedErase(nullptr, Stm32BootClient::EXT_MASS_ERASE);
+//                      memset(fbuff, 0xff, spec.flashSize);
+//                      std::cout << "Try to fill whole flash with 0's...";
+//                      err = Stm32BootClient::writeMemory(fbuff, 0x08000000, spec.flashSize);
 //                      std::cout << Stm32BootClient::errorCode2String(err) << std::endl;
+
+                        std::cout << "Try to erase whole flash..." << std::endl;
+                        err = Stm32BootClient::eraseAllMemory();
+                        std::cout << Stm32BootClient::errorCode2String(err) << std::endl;
                         delete [] fbuff;
                     }
 

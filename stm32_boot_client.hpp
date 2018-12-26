@@ -120,6 +120,7 @@ public:
     static ErrorCode readMcuSpecificInfo( uint16_t _chipid, McuSpecificInfo_t &_info );
     static ErrorCode readMemory( void * _dst, uint32_t _addr, size_t _size );
     static ErrorCode writeMemory( const void * _src, uint32_t _addr, size_t _size );
+    static ErrorCode eraseAllMemory();
 protected:
 private:
     static const McuDescription_t m_mcuDescription[];
