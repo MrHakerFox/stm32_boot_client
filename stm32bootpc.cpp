@@ -1,6 +1,7 @@
 #include "stm32bootpc.hpp"
 #include <iostream>
 #include <fstream>
+#include <string.h>
 Settings_t parseCommandLine( int argc, char * argv[] ) {
     /// TODO Add code
     (void)argc;
@@ -55,18 +56,30 @@ int tryDetectMcu( Stm32BootClient::McuType &_mcy ) {
 //                      ofile.write(reinterpret_cast<const char *>(fbuff), spec.flashSize);
 //                      ofile.close();
 
-                        std::cout << "Reading file from disk...";
-                        std::ifstream ifile;
-                        ifile.open("test_by_iar.bin", std::ios::in | std::ios::binary);
-                        ifile.seekg(0, std::ios::end);
-                        size_t length = ifile.tellg();
-                        ifile.seekg(0, std::ios::beg);
-                        std::cout << "size " << length;
-                        ifile.read(reinterpret_cast<char *>(fbuff), length);
-                        ifile.close();
-                        std::cout << "Triyng to write to flash...";
-                        err = Stm32BootClient::writeMemory(fbuff, 0x08000000, length);
+
+
+//                      std::cout << "Reading file from disk...";
+//                      std::ifstream ifile;
+//                      ifile.open("test_by_iar.bin", std::ios::in | std::ios::binary);
+//                      ifile.seekg(0, std::ios::end);
+//                      size_t length = ifile.tellg();
+//                      ifile.seekg(0, std::ios::beg);
+//                      std::cout << "size " << length;
+//                      ifile.read(reinterpret_cast<char *>(fbuff), length);
+//                      ifile.close();
+//                      std::cout << "Triyng to write to flash...";
+//                      err = Stm32BootClient::writeMemory(fbuff, 0x08000000, length);
+//                      std::cout << Stm32BootClient::errorCode2String(err) << std::endl;
+
+
+                        memset(fbuff, 0xff, spec.flashSize);
+                        std::cout << "Try to fill whole flash with 0's...";
+                        err = Stm32BootClient::writeMemory(fbuff, 0x08000000, spec.flashSize);
                         std::cout << Stm32BootClient::errorCode2String(err) << std::endl;
+
+//                      std::cout << "Try to erase whole flash..." << std::endl;
+//                      err = Stm32BootClient::commandExtendedErase(nullptr, Stm32BootClient::EXT_MASS_ERASE);
+//                      std::cout << Stm32BootClient::errorCode2String(err) << std::endl;
                         delete [] fbuff;
                     }
 
