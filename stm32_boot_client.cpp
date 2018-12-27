@@ -15,6 +15,17 @@ const Stm32BootClient::McuDescription_t Stm32BootClient::m_mcuDescription[] = {
         0x1ffff7cc,
         true
     },
+    {   /// Stm32F09xxx
+        0x0,
+        0x0,
+        0x1fffd800,
+        0x1ffff7ff,
+        0x20000000,
+        0x00008000,
+        0x08000000,
+        0x1ffff7cc,
+        false
+    },
 };
 /*!
  * Function: init 
@@ -77,6 +88,7 @@ std::string Stm32BootClient::errorCode2String( ErrorCode _errcode ) {
 std::string Stm32BootClient::mcuType2String( McuType _type ) {
     static const std::string name[] = {
         "STM32F05xxx or STM32F030x8",
+        "STM32F09xxx"
     };
     std::string result = "Unknown";
     size_t idx = static_cast<size_t>(_type);
@@ -100,6 +112,9 @@ Stm32BootClient::McuType Stm32BootClient::chipId2McuType( uint16_t _chipid ) {
     Stm32BootClient::McuType result = McuType::Unknown;
     if (_chipid == 0x0440)
         result = McuType::Stm32F05xxx_F030x8;
+    else if (_chipid == 0x0442) {
+        result = McuType::Stm32F09xxx;
+    }
     return result;
 
 }

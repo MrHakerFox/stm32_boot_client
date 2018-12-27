@@ -18,6 +18,7 @@ public:
     enum class McuType : uint8_t {
         Unknown = 0xff,
         Stm32F05xxx_F030x8 = 0x00,
+        Stm32F09xxx, 
     };
     enum class ErrorCode : uint8_t {
         OK = 0x00,                  /// No errors
