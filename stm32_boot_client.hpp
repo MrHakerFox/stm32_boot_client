@@ -13,12 +13,13 @@ public:
         uint32_t ramSize;
         uint32_t flashBegin;
         uint32_t flashSizeReg;
+        uint16_t flashPageSize;
         bool rdpActive2Nack;    /// true if two nacks are sent when RDP is active
     }McuDescription_t;
     enum class McuType : uint8_t {
         Unknown = 0xff,
         Stm32F05xxx_F030x8 = 0x00,
-        Stm32F09xxx, 
+        Stm32F09xxx,
     };
     enum class ErrorCode : uint8_t {
         OK = 0x00,                  /// No errors

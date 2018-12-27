@@ -13,6 +13,7 @@ const Stm32BootClient::McuDescription_t Stm32BootClient::m_mcuDescription[] = {
         0x00002000,
         0x08000000,
         0x1ffff7cc,
+        1024,
         true
     },
     {   /// Stm32F09xxx
@@ -24,6 +25,7 @@ const Stm32BootClient::McuDescription_t Stm32BootClient::m_mcuDescription[] = {
         0x00008000,
         0x08000000,
         0x1ffff7cc,
+        2048, 
         false
     },
 };
@@ -574,9 +576,9 @@ Stm32BootClient::ErrorCode Stm32BootClient::writeMemory( const void * _src, uint
 }
 Stm32BootClient::ErrorCode Stm32BootClient::eraseAllMemory() {
     CommandGetResponse_t getresp;
-    bool isExtendedSupport = false;
     auto err = commandGet(getresp);
     if (err == ErrorCode::OK) {
+		bool isExtendedSupport = false;
         for ( size_t cmd = 0; cmd < getresp.getCommandListSize(); cmd++ ) {
             if (getresp.getCommand(cmd) == Command::ExtErase)
                 isExtendedSupport = true;
