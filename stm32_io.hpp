@@ -1,13 +1,8 @@
 #pragma once
 #ifdef __cplusplus
 #include "stm32_boot_client.hpp"
-#include <windows.h>
-#include <stdio.h>
-#include <iostream>
+#include "included_macro.hpp"
 #include <inttypes.h>
-
-#define configASSERT(x) if((x)==0) { std::cout << std::endl << "configASSERT @ " << __FUNCTION__ << ":" << __LINE__ << std::endl; std::cin.get(); }
-#define ARRAY_SIZE(x)  (sizeof(x) / sizeof(x[0]))
 
 class Stm32Io {
 public:
@@ -20,6 +15,5 @@ public:
     static void delayMs( uint32_t _delay );
 protected:
 private:
-    static HANDLE m_handle;
 };
 #endif

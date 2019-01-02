@@ -2,7 +2,7 @@
 /brief This file contains all needed algorithms to operate with in-build STM32 bootloaders.
 */
 #include "stm32_boot_client.hpp"
-#include "stm32_io_pc.hpp"
+#include "stm32_io.hpp"
 const Stm32BootClient::McuDescription_t Stm32BootClient::m_mcuDescription[] = {
     {   /// Stm32F05xxx_F030x8
         0x20000800,
@@ -25,7 +25,7 @@ const Stm32BootClient::McuDescription_t Stm32BootClient::m_mcuDescription[] = {
         0x00008000,
         0x08000000,
         0x1ffff7cc,
-        2048, 
+        2048,
         false
     },
 };
@@ -578,7 +578,7 @@ Stm32BootClient::ErrorCode Stm32BootClient::eraseAllMemory() {
     CommandGetResponse_t getresp;
     auto err = commandGet(getresp);
     if (err == ErrorCode::OK) {
-		bool isExtendedSupport = false;
+        bool isExtendedSupport = false;
         for ( size_t cmd = 0; cmd < getresp.getCommandListSize(); cmd++ ) {
             if (getresp.getCommand(cmd) == Command::ExtErase)
                 isExtendedSupport = true;

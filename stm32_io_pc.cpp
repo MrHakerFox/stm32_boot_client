@@ -1,8 +1,11 @@
 /*! 
   /brief Platform-dependent function to handle serial port.
   */
-#include "stm32_io_pc.hpp"
-HANDLE Stm32Io::m_handle;
+#include "stm32_io.hpp"
+#include <windows.h>
+#include <stdio.h>
+#include <iostream>
+static HANDLE s_serialHandle;
 /*!
  * Function: init 
  * Initializes serial port.
@@ -11,7 +14,7 @@ HANDLE Stm32Io::m_handle;
  */
 Stm32BootClient::ErrorCode Stm32Io::init() {
     Stm32BootClient::ErrorCode result;
-    m_handle = CreateFile(
+    s_serialHandle = CreateFile(
         "\\\\.\\COM3",
         GENERIC_READ | GENERIC_WRITE,
         0, NULL,
@@ -19,19 +22,19 @@ Stm32BootClient::ErrorCode Stm32Io::init() {
         0,
         NULL
         );
-    result = ( m_handle == INVALID_HANDLE_VALUE ) ? Stm32BootClient::ErrorCode::SERIAL_CANT_OPEN :
+    result = ( s_serialHandle == INVALID_HANDLE_VALUE ) ? Stm32BootClient::ErrorCode::SERIAL_CANT_OPEN :
         Stm32BootClient::ErrorCode::OK;
     if (result == Stm32BootClient::ErrorCode::OK) {
         DCB dcbSerialConfig;
         dcbSerialConfig.DCBlength = sizeof( dcbSerialConfig );
-        BOOL status = GetCommState(m_handle, &dcbSerialConfig);
+        BOOL status = GetCommState(s_serialHandle, &dcbSerialConfig);
         result = ( status == 0 ) ? Stm32BootClient::ErrorCode::FAILED : Stm32BootClient::ErrorCode::OK;
         if (result == Stm32BootClient::ErrorCode::OK) {
             dcbSerialConfig.BaudRate = CBR_115200;
             dcbSerialConfig.ByteSize = 8;
             dcbSerialConfig.StopBits = ONESTOPBIT;
             dcbSerialConfig.Parity = EVENPARITY;
-            status = SetCommState(m_handle, &dcbSerialConfig);
+            status = SetCommState(s_serialHandle, &dcbSerialConfig);
             result = ( status == 0 ) ? Stm32BootClient::ErrorCode::FAILED : Stm32BootClient::ErrorCode::OK;
             if (result == Stm32BootClient::ErrorCode::OK) {
                 COMMTIMEOUTS timeouts = {};
@@ -40,7 +43,7 @@ Stm32BootClient::ErrorCode Stm32Io::init() {
                 timeouts.ReadTotalTimeoutMultiplier = 10; // in milliseconds
                 timeouts.WriteTotalTimeoutConstant = 50; // in milliseconds
                 timeouts.WriteTotalTimeoutMultiplier = 10; // in milliseconds
-                status = SetCommTimeouts(m_handle, &timeouts);
+                status = SetCommTimeouts(s_serialHandle, &timeouts);
                 result = ( status == 0 ) ? Stm32BootClient::ErrorCode::FAILED : Stm32BootClient::ErrorCode::OK;
             }
         }
@@ -60,7 +63,7 @@ Stm32BootClient::ErrorCode Stm32Io::init() {
 Stm32BootClient::ErrorCode Stm32Io::write( const void * _src, size_t _size, size_t * _written ) {
     DWORD wr;
     BOOL status = WriteFile(
-        m_handle,
+        s_serialHandle,
         _src,
         static_cast<DWORD>(_size),
         reinterpret_cast<LPDWORD>(&wr),
@@ -85,7 +88,7 @@ Stm32BootClient::ErrorCode Stm32Io::write( const void * _src, size_t _size, size
 Stm32BootClient::ErrorCode Stm32Io::read( void * _dst, size_t _size, size_t * _read ) {
     DWORD rd;
     BOOL status = ReadFile(
-        m_handle,
+        s_serialHandle,
         _dst,
         static_cast<DWORD>(_size),
         reinterpret_cast<LPDWORD>(&rd),
@@ -104,7 +107,7 @@ Stm32BootClient::ErrorCode Stm32Io::read( void * _dst, size_t _size, size_t * _r
  */
 Stm32BootClient::ErrorCode Stm32Io::deinit() {
     Stm32BootClient::ErrorCode result;
-    result = CloseHandle(m_handle) ? Stm32BootClient::ErrorCode::OK : Stm32BootClient::ErrorCode::FAILED;
+    result = CloseHandle(s_serialHandle) ? Stm32BootClient::ErrorCode::OK : Stm32BootClient::ErrorCode::FAILED;
     return result;
 }
 /*!
