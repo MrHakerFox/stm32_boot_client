@@ -149,6 +149,11 @@
             GUID="{19F29F86-174C-4E14-05CB-D803FC5870BD}"></Folder>
     </CustomFolders>
     <Files AutoFolders="DirectoryView">
+        <Folder Name="../../../../test">
+            <Folder Name="optparse">
+                <F N="../../../../test/optparse/optparse.h"/>
+            </Folder>
+        </Folder>
         <F
             N="*.*"
             Recurse="1"

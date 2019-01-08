@@ -2,11 +2,46 @@
 #include <iostream>
 #include <fstream>
 #include <string.h>
+#include <getopt.h>
+static void printHelp() {
+    std::cout << "Usage:" << std::endl <<
+        "-e, --erase                      erase all flash memory.\n"
+        "-p, --program_bin filename.bin   program filename.bin to flash.\n"
+        "-r, --read_bin filename.bin      read a flash to filename.bin.\n" << std::endl;
+}
 Settings_t parseCommandLine( int argc, char * argv[] ) {
     /// TODO Add code
-    (void)argc;
-    (void)( argv );
-    return Settings_t();
+    Settings_t result;
+    if (argc > 1) {
+        const struct option long_options[] = {
+            { "help", no_argument, NULL, 'h' },
+            { "erase", no_argument, NULL, 'e' },
+            { "program_bin", required_argument, NULL, 'p' },
+            { "read_bin", required_argument, NULL, 'r' },
+            {0, 0, 0, 0},
+        };
+        int option_index;
+        int c;
+        while (( c = getopt_long(argc, argv, "ep:r:", long_options, &option_index) ) != -1) {
+            std::cout << "c " << c << std::endl;
+            switch (c) {
+            case 'e':
+                result.erase = true;
+                break;
+            case 'p':
+                result.program = true;
+                result.fname = optarg;
+                break;
+            case 'r':
+                result.read = true;
+                result.fname = optarg;
+                break;
+            default:
+                printHelp();
+            }
+        }
+    }
+    return result;
 }
 int tryDetectMcu( Stm32BootClient::McuType &_mcy ) {
     /// TODO Fixe this
@@ -104,9 +139,7 @@ int main( int argc, char * argv[] ) {
     std::cout << "STM32F0(1,2,3,4) bootloader client software.\n";
     result = initBootLoader();
     if (result == 0) {
-        if (argc > 1) {
-            settings = parseCommandLine(argc, argv);
-        }
+        settings = parseCommandLine(argc, argv);
         if (settings.mcuType == Stm32BootClient::McuType::Unknown) {
             result = tryDetectMcu(settings.mcuType);
         }
