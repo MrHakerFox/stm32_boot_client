@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string.h>
 #include <getopt.h>
+static bool checkSettings( Settings_t _settings ) {}
 static void printHelp() {
     std::cout << "Usage:" << std::endl <<
         "-e, --erase                      erase all flash memory.\n"
@@ -40,6 +41,7 @@ Settings_t parseCommandLine( int argc, char * argv[] ) {
                 printHelp();
             }
         }
+        checkSettings(result);  
     }
     return result;
 }
