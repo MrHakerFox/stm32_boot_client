@@ -1,4 +1,7 @@
 TARGET=stm32bootpc.exe
+CXXSRC=$(wildcard *.cpp)
+OBJ=$(CXXSRC:.cpp=.o)
+DEPS=$(OBJ:.o=.d)
 
 CXX=g++
 LD=g++
@@ -8,11 +11,16 @@ CXXFLAGS+=-Winit-self -Wunreachable-code -Wstrict-overflow=5 -Wshadow -Wcast-qua
 
 LDFLAGS=
 
-
 all: $(TARGET)
 
-$(TARGET): stm32_boot_client.o stm32_io_pc.o stm32bootpc.o
+$(TARGET): $(OBJ)
 	$(LD) -o $@ $^ $(LDFLAGS)
 
+-include $(DEPS)
+
+%.d: %.cpp
+	@$(CPP) $(CXXFLAGS) $< -MM -MT $(@:.d=.o) >$@
+
+.PHONY: clean
 clean:
 	rm *.o $(TARGET)

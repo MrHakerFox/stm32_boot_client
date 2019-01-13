@@ -6,3 +6,4 @@ stm32_factory_client-cppcheck-build-dir/*
 *.bin
 *.o
 *.stackdump
+*.d
