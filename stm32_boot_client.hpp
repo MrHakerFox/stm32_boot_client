@@ -20,6 +20,11 @@ public:
         Unknown = 0xff,
         Stm32F05xxx_F030x8 = 0x00,
         Stm32F09xxx,
+        Stm32F10xxx_lowDensity,
+        Stm32F10xxx_mediumDensity,
+        Stm32F10xxx_highDensity,
+        Stm32F10xxx_mediumDensityVl,
+        Stm32F10xxx_highDensityVl,
     };
     enum class ErrorCode : uint8_t {
         OK = 0x00,                  /// No errors

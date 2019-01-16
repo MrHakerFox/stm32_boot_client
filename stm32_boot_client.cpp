@@ -3,6 +3,7 @@
 */
 #include "stm32_boot_client.hpp"
 #include "stm32_io.hpp"
+// TODO Find out how many SRAM in STM32F1xxx
 const Stm32BootClient::McuDescription_t Stm32BootClient::m_mcuDescription[] = {
     {   /// Stm32F05xxx_F030x8
         0x20000800,
@@ -28,6 +29,67 @@ const Stm32BootClient::McuDescription_t Stm32BootClient::m_mcuDescription[] = {
         2048,
         false
     },
+    {   /// Stm32F10xxx_lowDensity
+        0x20000200,
+        0x200027ff,
+        0x1ffff000,
+        0x1ffff7ff,
+        0x20000000,
+        0x00008000,
+        0x08000000,
+        0x1ffff7e0,
+        1024,
+        false
+    },
+    {   /// Stm32F10xxx_mediumDensity
+        0x20000200,
+        0x200027ff,
+        0x1ffff000,
+        0x1ffff7ff,
+        0x20000000,
+        0x00008000,
+        0x08000000,
+        0x1ffff7e0,
+        1024,
+        false
+    },
+    {   /// Stm32F10xxx_highDensity
+        0x20000200,
+        0x200027ff,
+        0x1ffff000,
+        0x1ffff7ff,
+        0x20000000,
+        0x00008000,
+        0x08000000,
+        0x1ffff7e0,
+        2048,
+        false
+    },
+    {   /// Stm32F10xxx_mediumDensityVl
+        0x20000200,
+        0x200027ff,
+        0x1ffff000,
+        0x1ffff7ff,
+        0x20000000,
+        0x00008000,
+        0x08000000,
+        0x1ffff7e0,
+        1024,
+        false
+    },
+    {   /// Stm32F10xxx_highDensityVl
+        0x20000200,
+        0x200027ff,
+        0x1ffff000,
+        0x1ffff7ff,
+        0x20000000,
+        0x00008000,
+        0x08000000,
+        0x1ffff7e0,
+        2048,
+        false
+    },
+
 };
 /*!
  * Function: init 
@@ -90,7 +152,12 @@ std::string Stm32BootClient::errorCode2String( ErrorCode _errcode ) {
 std::string Stm32BootClient::mcuType2String( McuType _type ) {
     static const std::string name[] = {
         "STM32F05xxx or STM32F030x8",
-        "STM32F09xxx"
+        "STM32F09xxx",
+        "Stm32F10xxx_lowDensity",
+        "Stm32F10xxx_mediumDensity",
+        "Stm32F10xxx_highDensity",
+        "Stm32F10xxx_mediumDensityVl",
+        "Stm32F10xxx_highDensityVl",
     };
     std::string result = "Unknown";
     size_t idx = static_cast<size_t>(_type);
@@ -112,10 +179,30 @@ Stm32BootClient::McuDescription_t Stm32BootClient::mcuType2Description( McuType 
 }
 Stm32BootClient::McuType Stm32BootClient::chipId2McuType( uint16_t _chipid ) {
     Stm32BootClient::McuType result = McuType::Unknown;
-    if (_chipid == 0x0440)
+    switch (_chipid) {
+    case 0x0440:
         result = McuType::Stm32F05xxx_F030x8;
-    else if (_chipid == 0x0442) {
+        break;
+    case 0x0442:
         result = McuType::Stm32F09xxx;
+        break;
+    case 0x0412:
+        result = McuType::Stm32F10xxx_lowDensity;
+        break;
+    case 0x0410:
+        result = McuType::Stm32F10xxx_mediumDensity;
+        break;
+    case 0x0414:
+        result = McuType::Stm32F10xxx_highDensity;
+        break;
+    case 0x0420:
+        result = McuType::Stm32F10xxx_mediumDensityVl;
+        break;
+    case 0x0428:
+        result = McuType::Stm32F10xxx_highDensityVl;
+        break;
+    default:
+        result = McuType::Unknown;
     }
     return result;
 
