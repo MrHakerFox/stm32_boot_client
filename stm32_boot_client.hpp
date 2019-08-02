@@ -4,7 +4,7 @@
 #include <string>
 class Stm32BootClient {
 public:
-    typedef struct __packed McuDescription_t {
+    typedef __packed struct McuDescription_t {
         uint32_t blRamBegin;
         uint32_t blRamEnd;
         uint32_t blSysMemBegin;
@@ -50,7 +50,7 @@ public:
     static const uint16_t EXT_MASS_ERASE = 0xffff;
     static const uint16_t EXT_BANK1_ERASE = 0xfffe;
     static const uint16_t EXT_BANK2_ERASE = 0xfffd;
-    typedef struct __packed CommandGetResponse_t {
+    typedef __packed struct CommandGetResponse_t {
     public:
         void getBootVer( uint8_t &_high, uint8_t &_low ) {
             _high = static_cast<uint8_t>(bootver >> 4);
@@ -77,7 +77,7 @@ public:
         uint8_t bootver;
         uint8_t supportedCommands[11];
     }CommandGetResponse_t;
-    typedef struct __packed CommandGvRpsResponse_t {
+    typedef __packed struct CommandGvRpsResponse_t {
     public:
         void getBootVer( uint8_t &_high, uint8_t &_low ) {
             _high = static_cast<uint8_t>(bootver >> 4);
@@ -93,7 +93,7 @@ public:
         uint8_t opt1;
         uint8_t opt2;
     }CommandGvRpsResponse;
-    typedef struct __packed CommandGetIdResponse_t {
+    typedef __packed struct CommandGetIdResponse_t {
     public:
         uint16_t getId() const {
             return static_cast<uint16_t>(( pid1 << 8 ) | pid2);
@@ -103,7 +103,7 @@ public:
         uint8_t pid1;
         uint8_t pid2;
     }CommandGetIdResponse_t;
-    typedef struct __packed McuSpecificInfo_t {
+    typedef __packed struct McuSpecificInfo_t {
         uint32_t flashSize;     /// in bytes
     }McuSpecificInfo_t;
     static Stm32BootClient * instance() {

@@ -12,7 +12,7 @@ public:
     static Stm32BootClient::ErrorCode deinit();
     static void setResetLine( bool _level );
     static void setBootLine( bool _level );
-    static void delayMs( uint32_t _delay );
+    static void delay( uint32_t _delay );
 protected:
 private:
 };

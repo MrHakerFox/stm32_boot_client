@@ -100,7 +100,7 @@ const Stm32BootClient::McuDescription_t Stm32BootClient::m_mcuDescription[] = {
 Stm32BootClient::ErrorCode Stm32BootClient::init() {
     ErrorCode result = Stm32Io::init();
     if (result == ErrorCode::OK) {
-        Stm32Io::delayMs(BOOT_READY_DELAY);
+        Stm32Io::delay(BOOT_READY_DELAY);
     }
     return result;
 }
@@ -209,7 +209,7 @@ Stm32BootClient::McuType Stm32BootClient::chipId2McuType( uint16_t _chipid ) {
 }
 void Stm32BootClient::ResetMCU() {
     Stm32Io::setResetLine(false);
-    Stm32Io::delayMs(100);
+    Stm32Io::delay(100);
     Stm32Io::setResetLine(true);
 }
 /*!
