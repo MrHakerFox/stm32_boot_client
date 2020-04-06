@@ -12,7 +12,7 @@ static HANDLE s_serialHandle;
  * 
  * @return Stm32BootClient::ErrorCode 
  */
-Stm32BootClient::ErrorCode Stm32Io::init() {
+Stm32BootClient::ErrorCode Stm32BootLowIo::init() {
     Stm32BootClient::ErrorCode result;
     s_serialHandle = CreateFile(
         "\\\\.\\COM3",
@@ -60,7 +60,7 @@ Stm32BootClient::ErrorCode Stm32Io::init() {
  * 
  * @return Stm32BootClient::ErrorCode 
  */
-Stm32BootClient::ErrorCode Stm32Io::write( const void * _src, size_t _size, size_t * _written ) {
+Stm32BootClient::ErrorCode Stm32BootLowIo::write( const void * _src, size_t _size, size_t * _written ) {
     DWORD wr;
     BOOL status = WriteFile(
         s_serialHandle,
@@ -85,7 +85,7 @@ Stm32BootClient::ErrorCode Stm32Io::write( const void * _src, size_t _size, size
  * 
  * @return Stm32BootClient::ErrorCode 
  */
-Stm32BootClient::ErrorCode Stm32Io::read( void * _dst, size_t _size, size_t * _read ) {
+Stm32BootClient::ErrorCode Stm32BootLowIo::read( void * _dst, size_t _size, size_t * _read ) {
     DWORD rd;
     BOOL status = ReadFile(
         s_serialHandle,
@@ -105,7 +105,7 @@ Stm32BootClient::ErrorCode Stm32Io::read( void * _dst, size_t _size, size_t * _r
  * 
  * @return Stm32BootClient::ErrorCode 
  */
-Stm32BootClient::ErrorCode Stm32Io::deinit() {
+Stm32BootClient::ErrorCode Stm32BootLowIo::deinit() {
     Stm32BootClient::ErrorCode result;
     result = CloseHandle(s_serialHandle) ? Stm32BootClient::ErrorCode::OK : Stm32BootClient::ErrorCode::FAILED;
     return result;
@@ -116,7 +116,7 @@ Stm32BootClient::ErrorCode Stm32Io::deinit() {
  * 
  * @param _level true - hight level, false - low level
  */
-void Stm32Io::setResetLine( bool _level ) {
+void Stm32BootLowIo::setResetLine( bool _level ) {
     if (!_level) {
         std::cout << "Reset MCU, press ENTER...";
         std::cin.get();
@@ -129,7 +129,7 @@ void Stm32Io::setResetLine( bool _level ) {
  * 
  * @param _level true - high level, false - low level;
  */
-void Stm32Io::setBootLine( bool _level ) {
+void Stm32BootLowIo::setBootLine( bool _level ) {
     if (_level) {
         std::cout << "Set BOOT0 to high, press ENTER...";
     } else {
@@ -143,7 +143,7 @@ void Stm32Io::setBootLine( bool _level ) {
  * 
  * @param _delay how many ms to wait.
  */
-void Stm32Io::delayMs( uint32_t _delay ) {
+void Stm32BootLowIo::delayMs( uint32_t _delay ) {
     Sleep(_delay);
 }
 
