@@ -33,9 +33,11 @@ public:
         ACK_FAILED = 0x03,          /// ACK has not been received, no MCU connected???
         SERIAL_CANT_OPEN = 0x04,    /// Can't open serial port
         DBG_CODE = 0x05,            /// Debug code
-        UNKNOWN_MCU = 0x05,         /// Unknown MCU
-        SERIAL_WR_SIZE = 0x06,      /// Cant write N bytes
-        SERIAL_RD_SIZE = 0x07,      /// Cant read N bytes
+        UNKNOWN_MCU = 0x06,         /// Unknown MCU
+        SERIAL_WR_SIZE = 0x07,      /// Cant write N bytes
+        SERIAL_RD_SIZE = 0x08,      /// Cant read N bytes
+        SERIAL_WR_FAILED = 0x09,    /// Cant write at low level IO
+        SERIAL_RD_FAILED = 0x0a,    /// Cant read at low level IO
     };
     enum class Command : uint8_t {
         Get = 0x00,                 /// Get the version and allowed commands
@@ -46,6 +48,7 @@ public:
         WriteMem = 0x31,            /// Write memory up to 256 bytes
         Erase = 0x43,               ///  Erase from one to all the Flash pages
         ExtErase = 0x44,            /// Erases from one to all pages using two-byte addressing mode
+        ReadoutUnprotect = 0x92,    /// Disables the read protection
     };
     static const uint16_t EXT_MASS_ERASE = 0xffff;
     static const uint16_t EXT_BANK1_ERASE = 0xfffe;
@@ -111,6 +114,7 @@ public:
         return __self;
     }
     static ErrorCode init();
+    static ErrorCode deinit();
     static ErrorCode checkMcuPresence();
     static std::string errorCode2String( ErrorCode _errcode );
     static std::string mcuType2String( McuType _type );
@@ -124,6 +128,7 @@ public:
     static ErrorCode commandWriteMemory( const void * _src, uint32_t _addr, size_t _size );
     static ErrorCode commandErase( const uint8_t * _pagenumarray = nullptr, size_t _count = 0 );
     static ErrorCode commandExtendedErase( const uint16_t * _pagenumarray, uint16_t _count );
+    static ErrorCode commandReadoutUnprotect();
     static ErrorCode readMcuSpecificInfo( uint16_t _chipid, McuSpecificInfo_t &_info );
     static ErrorCode readMemory( void * _dst, uint32_t _addr, size_t _size );
     static ErrorCode writeMemory( const void * _src, uint32_t _addr, size_t _size );

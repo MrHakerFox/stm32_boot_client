@@ -98,10 +98,14 @@ const Stm32BootClient::McuDescription_t Stm32BootClient::m_mcuDescription[] = {
  * @return Stm32BootClient::ErrorCode 
  */
 Stm32BootClient::ErrorCode Stm32BootClient::init() {
-    ErrorCode result = Stm32Io::init();
+    ErrorCode result = Stm32BootLowIo::init();
     if (result == ErrorCode::OK) {
-        Stm32Io::delay(BOOT_READY_DELAY);
+        Stm32BootLowIo::delay(BOOT_READY_DELAY);
     }
+    return result;
+}
+Stm32BootClient::ErrorCode Stm32BootClient::deinit() {
+    auto result = Stm32BootLowIo::deinit();
     return result;
 }
 /*!
@@ -114,18 +118,18 @@ Stm32BootClient::ErrorCode Stm32BootClient::checkMcuPresence() {
     ErrorCode result;
     uint8_t txbuff[] = {ACK_ASK_CODE};
     size_t writtern;
-    Stm32Io::setBootLine(true);
+    Stm32BootLowIo::setBootLine(true);
     ResetMCU();
-    Stm32Io::setBootLine(false);
-    result = Stm32Io::write(txbuff, sizeof( txbuff ), &writtern);
+    Stm32BootLowIo::setBootLine(false);
+    result = Stm32BootLowIo::write(txbuff, sizeof( txbuff ), &writtern);
     if (result == ErrorCode::OK) {
-        result = ( writtern == sizeof( txbuff ) ) ? ErrorCode::OK : ErrorCode::FAILED;
+        result = ( writtern == sizeof( txbuff ) ) ? ErrorCode::OK : ErrorCode::SERIAL_WR_SIZE;
         if (result == ErrorCode::OK) {
             uint8_t rxbuff[1] = {0};
             size_t count;
-            result = Stm32Io::read(rxbuff, sizeof( rxbuff ), &count);
+            result = Stm32BootLowIo::read(rxbuff, sizeof( rxbuff ), &count);
             if (result == ErrorCode::OK) {
-                result = ( count == sizeof( rxbuff ) ) ? ErrorCode::OK : ErrorCode::FAILED;
+                result = ( count == sizeof( rxbuff ) ) ? ErrorCode::OK : ErrorCode::SERIAL_RD_SIZE;
                 if (result == ErrorCode::OK) {
                     result = ( rxbuff[0] == ACK_RESP_CODE ) ? ErrorCode::ACK_OK : ErrorCode::ACK_FAILED;
                 }
@@ -143,7 +147,10 @@ std::string Stm32BootClient::errorCode2String( ErrorCode _errcode ) {
         "Can't open serial port",
         "Debug code",
         "Unknown MCU type",
-        "Can't write N bytes to serial port"
+        "Can't write N bytes to serial port",
+        "Can't read N bytes from serail port",
+        "Low level IO: write failed",
+        "Low level IO: read failed"
     };
     size_t idx = static_cast<int>(_errcode);
     configASSERT(idx < ARRAY_SIZE(msgs));
@@ -208,9 +215,10 @@ Stm32BootClient::McuType Stm32BootClient::chipId2McuType( uint16_t _chipid ) {
 
 }
 void Stm32BootClient::ResetMCU() {
-    Stm32Io::setResetLine(false);
-    Stm32Io::delay(100);
-    Stm32Io::setResetLine(true);
+    Stm32BootLowIo::setResetLine(false);
+    Stm32BootLowIo::delay(100);
+    Stm32BootLowIo::setResetLine(true);
+    Stm32BootLowIo::delay(100);
 }
 /*!
  * Function: commandGet 
@@ -225,23 +233,23 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandGet( CommandGetResponse_t &_r
     size_t written;
     static const uint8_t cmd = static_cast<uint8_t>(Command::Get);
     uint8_t txBuff[] = { cmd, static_cast<uint8_t>(~cmd)};
-    err = Stm32Io::write(txBuff, sizeof( txBuff ), &written);
+    err = Stm32BootLowIo::write(txBuff, sizeof( txBuff ), &written);
     if (err == ErrorCode::OK) {
         err = ( written == sizeof( txBuff ) ) ? ErrorCode::OK : ErrorCode::FAILED;
         if (err == ErrorCode::OK) {
             size_t rd;
             uint8_t ackCode;
-            err = Stm32Io::read(&ackCode, sizeof( ackCode ), &rd);
+            err = Stm32BootLowIo::read(&ackCode, sizeof( ackCode ), &rd);
             if (err == ErrorCode::OK) {
                 err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::FAILED;
                 if (err == ErrorCode::OK) {
                     err = ( ackCode == ACK_RESP_CODE ) ? ErrorCode::ACK_OK : ErrorCode::ACK_FAILED;
                     if (err == ErrorCode::ACK_OK) {
-                        err = Stm32Io::read(&_resp, sizeof( CommandGetResponse_t ), &rd);
+                        err = Stm32BootLowIo::read(&_resp, sizeof( CommandGetResponse_t ), &rd);
                         if (err == ErrorCode::OK) {
                             err = ( rd == sizeof( _resp ) ) ? ErrorCode::OK : ErrorCode::FAILED;
                             if (err == ErrorCode::OK) {
-                                err = Stm32Io::read(&ackCode, sizeof( ackCode ), &rd);
+                                err = Stm32BootLowIo::read(&ackCode, sizeof( ackCode ), &rd);
                                 if (err == ErrorCode::OK) {
                                     err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::FAILED;
                                     if (err == ErrorCode::OK) {
@@ -270,23 +278,23 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandGvRps( CommandGvRpsResponse_t
     size_t written;
     static const uint8_t cmd = static_cast<uint8_t>(Command::GvRps);
     uint8_t txBuff[] = { cmd, static_cast<uint8_t>(~cmd)};
-    err = Stm32Io::write(txBuff, sizeof( txBuff ), &written);
+    err = Stm32BootLowIo::write(txBuff, sizeof( txBuff ), &written);
     if (err == ErrorCode::OK) {
         err = ( written == sizeof( txBuff ) ) ? ErrorCode::OK : ErrorCode::FAILED;
         if (err == ErrorCode::OK) {
             size_t rd;
             uint8_t ackCode;
-            err = Stm32Io::read(&ackCode, sizeof( ackCode ), &rd);
+            err = Stm32BootLowIo::read(&ackCode, sizeof( ackCode ), &rd);
             if (err == ErrorCode::OK) {
                 err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::FAILED;
                 if (err == ErrorCode::OK) {
                     err = ( ackCode == ACK_RESP_CODE ) ? ErrorCode::ACK_OK : ErrorCode::ACK_FAILED;
                     if (err == ErrorCode::ACK_OK) {
-                        err = Stm32Io::read(&_resp, sizeof( _resp ), &rd);
+                        err = Stm32BootLowIo::read(&_resp, sizeof( _resp ), &rd);
                         if (err == ErrorCode::OK) {
                             err = ( rd == sizeof( _resp ) ) ? ErrorCode::OK : ErrorCode::FAILED;
                             if (err == ErrorCode::OK) {
-                                err = Stm32Io::read(&ackCode, sizeof( ackCode ), &rd);
+                                err = Stm32BootLowIo::read(&ackCode, sizeof( ackCode ), &rd);
                                 if (err == ErrorCode::OK) {
                                     err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::FAILED;
                                     if (err == ErrorCode::OK) {
@@ -307,23 +315,23 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandGetId( CommandGetIdResponse_t
     size_t written;
     static const uint8_t cmd = static_cast<uint8_t>(Command::Getid);
     uint8_t txBuff[] = { cmd, static_cast<uint8_t>(~cmd)};
-    err = Stm32Io::write(txBuff, sizeof( txBuff ), &written);
+    err = Stm32BootLowIo::write(txBuff, sizeof( txBuff ), &written);
     if (err == ErrorCode::OK) {
         err = ( written == sizeof( txBuff ) ) ? ErrorCode::OK : ErrorCode::FAILED;
         if (err == ErrorCode::OK) {
             size_t rd;
             uint8_t ackCode;
-            err = Stm32Io::read(&ackCode, sizeof( ackCode ), &rd);
+            err = Stm32BootLowIo::read(&ackCode, sizeof( ackCode ), &rd);
             if (err == ErrorCode::OK) {
                 err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::FAILED;
                 if (err == ErrorCode::OK) {
                     err = ( ackCode == ACK_RESP_CODE ) ? ErrorCode::ACK_OK : ErrorCode::ACK_FAILED;
                     if (err == ErrorCode::ACK_OK) {
-                        err = Stm32Io::read(&_resp, sizeof( _resp ), &rd);
+                        err = Stm32BootLowIo::read(&_resp, sizeof( _resp ), &rd);
                         if (err == ErrorCode::OK) {
                             err = ( rd == sizeof( _resp ) ) ? ErrorCode::OK : ErrorCode::FAILED;
                             if (err == ErrorCode::OK) {
-                                err = Stm32Io::read(&ackCode, sizeof( ackCode ), &rd);
+                                err = Stm32BootLowIo::read(&ackCode, sizeof( ackCode ), &rd);
                                 if (err == ErrorCode::OK) {
                                     err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::FAILED;
                                     if (err == ErrorCode::OK) {
@@ -351,19 +359,19 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandReadMemory( void * _dst, uint
         if (err == ErrorCode::ACK_OK) {
             uint8_t sz = static_cast<uint8_t>(_size - 1);
             uint8_t numarr[] = {sz, static_cast<uint8_t>(~sz)};
-            err = Stm32Io::write(numarr, sizeof( numarr ), &written);
+            err = Stm32BootLowIo::write(numarr, sizeof( numarr ), &written);
             if (err == ErrorCode::OK) {
                 err = ( written == sizeof( numarr ) ) ? ErrorCode::OK : ErrorCode::FAILED;
                 if (err == ErrorCode::OK) {
                     uint8_t ackCode;
                     size_t rd;
-                    err = Stm32Io::read(&ackCode, sizeof( ackCode ), &rd);
+                    err = Stm32BootLowIo::read(&ackCode, sizeof( ackCode ), &rd);
                     if (err == ErrorCode::OK) {
                         err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::FAILED;
                         if (err == ErrorCode::OK) {
                             err = ( ackCode == ACK_RESP_CODE ) ? ErrorCode::ACK_OK : ErrorCode::ACK_FAILED;
                             if (err == ErrorCode::ACK_OK) {
-                                err = Stm32Io::read(_dst, _size, &rd);
+                                err = Stm32BootLowIo::read(_dst, _size, &rd);
                                 if (err == ErrorCode::OK && rd != _size)
                                     err = ErrorCode::FAILED;
                             }
@@ -379,6 +387,12 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandGo( uint32_t _addr ) {
     ErrorCode err = commandGenericSend(Command::Go);
     if (err == ErrorCode::ACK_OK) {
         err = genericSendAddr(_addr);
+        if (err == ErrorCode::ACK_OK) {
+            err = ErrorCode::OK;
+        }
+    }
+    if (err != ErrorCode::OK) {
+        Stm32BootLowIo::flush();
     }
     return err;
 }
@@ -393,21 +407,21 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandWriteMemory( const void * _sr
             uint8_t sz = static_cast<uint8_t>(_size - 1);
             uint8_t xor_cs = calculateXor(static_cast<const uint8_t *>(_src), _size) ^ sz;
             size_t written;
-            err = Stm32Io::write(&sz, sizeof( sz ), &written);
+            err = Stm32BootLowIo::write(&sz, sizeof( sz ), &written);
             if (err == ErrorCode::OK) {
                 err = ( written == sizeof( sz ) ) ? ErrorCode::OK : ErrorCode::SERIAL_WR_SIZE;
                 if (err == ErrorCode::OK) {
-                    err = Stm32Io::write(_src, _size, &written);
+                    err = Stm32BootLowIo::write(_src, _size, &written);
                     if (err == ErrorCode::OK) {
                         err = ( written == _size ) ? ErrorCode::OK : ErrorCode::SERIAL_WR_SIZE;
                         if (err == ErrorCode::OK) {
-                            err = Stm32Io::write(&xor_cs, sizeof( xor_cs ), &written);
+                            err = Stm32BootLowIo::write(&xor_cs, sizeof( xor_cs ), &written);
                             if (err == ErrorCode::OK) {
                                 err = ( written == sizeof( xor_cs ) ) ? ErrorCode::OK : ErrorCode::SERIAL_WR_SIZE;
                                 if (err == ErrorCode::OK) {
                                     uint8_t ackCode;
                                     size_t rd;
-                                    err = Stm32Io::read(&ackCode, sizeof( ackCode ), &rd);
+                                    err = Stm32BootLowIo::read(&ackCode, sizeof( ackCode ), &rd);
                                     if (err == ErrorCode::OK) {
                                         err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::FAILED;
                                         if (err == ErrorCode::OK) {
@@ -431,22 +445,22 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandErase( const uint8_t * _pagen
         size_t written;
         if (_pagenumarray == nullptr) {
             uint8_t txarr[] = {0xff, 0};
-            err = Stm32Io::write(txarr, sizeof( txarr ), &written);
+            err = Stm32BootLowIo::write(txarr, sizeof( txarr ), &written);
             if (err == ErrorCode::OK) {
                 err = ( written == sizeof( txarr ) ) ? ErrorCode::OK : ErrorCode::SERIAL_WR_SIZE;
             }
         } else {
             uint8_t sz = static_cast<uint8_t>(_count);
             uint8_t xor_cs = calculateXor(_pagenumarray, _count) ^ sz;
-            err = Stm32Io::write(&sz, sizeof( sz ), &written);
+            err = Stm32BootLowIo::write(&sz, sizeof( sz ), &written);
             if (err == ErrorCode::OK) {
                 err = ( written == sizeof( sz ) ) ? ErrorCode::OK : ErrorCode::SERIAL_WR_SIZE;
                 if (err == ErrorCode::OK) {
-                    err = Stm32Io::write(_pagenumarray, _count, &written);
+                    err = Stm32BootLowIo::write(_pagenumarray, _count, &written);
                     if (err == ErrorCode::OK) {
                         err = ( written == _count ) ? ErrorCode::OK : ErrorCode::SERIAL_WR_SIZE;
                         if (err == ErrorCode::OK) {
-                            err = Stm32Io::write(&xor_cs, sizeof( xor_cs ), &written);
+                            err = Stm32BootLowIo::write(&xor_cs, sizeof( xor_cs ), &written);
                             if (err == ErrorCode::OK) {
                                 err = ( written == sizeof( xor_cs ) ) ? ErrorCode::OK : ErrorCode::SERIAL_WR_SIZE;
                             }
@@ -458,7 +472,7 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandErase( const uint8_t * _pagen
         if (err == ErrorCode::OK) {
             uint8_t ackCode;
             size_t rd;
-            err = Stm32Io::read(&ackCode, sizeof( ackCode ), &rd);
+            err = Stm32BootLowIo::read(&ackCode, sizeof( ackCode ), &rd);
             if (err == ErrorCode::OK) {
                 err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::FAILED;
                 if (err == ErrorCode::OK) {
@@ -475,7 +489,7 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandExtendedErase( const uint16_t
         size_t written;
         if (_count == EXT_MASS_ERASE || _count == EXT_BANK1_ERASE || _count == EXT_BANK2_ERASE) {
             uint16_t txarray[] = {_count, static_cast<uint16_t>(~_count)};
-            err = Stm32Io::write(txarray, sizeof( txarray ), &written);
+            err = Stm32BootLowIo::write(txarray, sizeof( txarray ), &written);
             if (err == ErrorCode::OK) {
                 err = ( written == sizeof( txarray ) ) ? ErrorCode::OK : ErrorCode::SERIAL_WR_SIZE;
             }
@@ -492,7 +506,7 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandExtendedErase( const uint16_t
                     if (err == ErrorCode::OK) {
                         err = ( written == _count ) ? ErrorCode::OK : ErrorCode::SERIAL_WR_SIZE;
                         if (err == ErrorCode::OK) {
-                            err = Stm32Io::write(&xor_cs, sizeof( xor_cs ), &written);
+                            err = Stm32BootLowIo::write(&xor_cs, sizeof( xor_cs ), &written);
                             if (err == ErrorCode::OK) {
                                 err = ( written == sizeof( xor_cs ) ) ? ErrorCode::OK : ErrorCode::SERIAL_WR_SIZE;
                             }
@@ -504,7 +518,7 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandExtendedErase( const uint16_t
         if (err == ErrorCode::OK) {
             uint8_t ackCode;
             size_t rd;
-            err = Stm32Io::read(&ackCode, sizeof( ackCode ), &rd);
+            err = Stm32BootLowIo::read(&ackCode, sizeof( ackCode ), &rd);
             if (err == ErrorCode::OK) {
                 err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::SERIAL_RD_SIZE;
                 if (err == ErrorCode::OK) {
@@ -515,22 +529,34 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandExtendedErase( const uint16_t
     }
     return err;
 }
+Stm32BootClient::ErrorCode Stm32BootClient::commandReadoutUnprotect() {
+    auto err = commandGenericSend(Command::ReadoutUnprotect);
+    if (err != ErrorCode::OK)
+        return err;
+    uint8_t ack;
+    size_t rd;
+    while (( err = Stm32BootLowIo::read(&ack, sizeof( ack ), &rd) ) == ErrorCode::OK) {
+        if (rd == sizeof( ack ) && ack == ACK_RESP_CODE)
+            break;
+    }
+    return err;
+}
 Stm32BootClient::ErrorCode Stm32BootClient::genericSendAddr( uint32_t _addr ) {
     ErrorCode err;
     uint8_t addr_array[4];
     addr32_to_byte(_addr, addr_array);
     //std::cout << std::hex << (int)addr_array[0] << " " << (int)addr_array[1] << " " << (int)addr_array[2] << " " << (int)addr_array[3];
     size_t written;
-    err = Stm32Io::write(addr_array, sizeof( addr_array ), &written);
+    err = Stm32BootLowIo::write(addr_array, sizeof( addr_array ), &written);
     if (err == ErrorCode::OK && written == sizeof( addr_array )) {
         uint8_t xor_cs = calculateXor(reinterpret_cast<uint8_t *>(&_addr), sizeof( _addr ));
-        err = Stm32Io::write(&xor_cs, sizeof( xor_cs ), &written);
+        err = Stm32BootLowIo::write(&xor_cs, sizeof( xor_cs ), &written);
         if (err == ErrorCode::OK) {
             err = ( written == sizeof( xor_cs ) ) ? ErrorCode::OK : ErrorCode::SERIAL_WR_SIZE;
             if (err == ErrorCode::OK) {
                 uint8_t ackCode;
                 size_t rd;
-                err = Stm32Io::read(&ackCode, sizeof( ackCode ), &rd);
+                err = Stm32BootLowIo::read(&ackCode, sizeof( ackCode ), &rd);
                 if (err == ErrorCode::OK) {
                     err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::SERIAL_RD_SIZE;
                     if (err == ErrorCode::OK) {
@@ -559,6 +585,9 @@ Stm32BootClient::ErrorCode Stm32BootClient::readMcuSpecificInfo( uint16_t _chipi
             }
         }
     }
+    if (err != ErrorCode::OK) {
+        Stm32BootLowIo::flush(); // if two NACKs (RDP active) sent
+    }
     return err;
 }
 uint8_t Stm32BootClient::calculateXor( const uint8_t * _src, size_t _size ) {
@@ -578,15 +607,15 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandGenericSend( Command _cmd ) {
     size_t written;
     uint8_t cmd = static_cast<uint8_t>(_cmd);
     uint8_t txBuff[] = { cmd, static_cast<uint8_t>(~cmd)};
-    err = Stm32Io::write(txBuff, sizeof( txBuff ), &written);
+    err = Stm32BootLowIo::write(txBuff, sizeof( txBuff ), &written);
     if (err == ErrorCode::OK) {
         err = ( written == sizeof( txBuff ) ) ? ErrorCode::OK : ErrorCode::SERIAL_WR_SIZE;
         if (err == ErrorCode::OK) {
             size_t rd;
             uint8_t ackCode;
-            err = Stm32Io::read(&ackCode, sizeof( ackCode ), &rd);
+            err = Stm32BootLowIo::read(&ackCode, sizeof( ackCode ), &rd);
             if (err == ErrorCode::OK) {
-                err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::FAILED;
+                err = ( rd == sizeof( ackCode ) ) ? ErrorCode::OK : ErrorCode::SERIAL_RD_SIZE;
                 if (err == ErrorCode::OK) {
                     err = ( ackCode == ACK_RESP_CODE ) ? ErrorCode::ACK_OK : ErrorCode::ACK_FAILED;
                 }
@@ -620,7 +649,7 @@ Stm32BootClient::ErrorCode Stm32BootClient::serialWrite16( const uint16_t * _src
         uint8_t txarr[] = {static_cast<uint8_t>(( *_src >> 8 ) & 0xff), static_cast<uint8_t>(*_src & 0xff)};
         _src++;
         size_t written;
-        err = Stm32Io::write(txarr, sizeof( txarr ), &written);
+        err = Stm32BootLowIo::write(txarr, sizeof( txarr ), &written);
         if (err == ErrorCode::OK) {
             err = ( written == sizeof( txarr ) ) ? ErrorCode::OK : ErrorCode::SERIAL_WR_SIZE;
             if (err == ErrorCode::OK)
