@@ -56,7 +56,6 @@ Stm32BootClient::ErrorCode Stm32BootLowIo::init() {
         p->close();
         configASSERT(p->open(&settings) == rvOK);
     }
-    GPIO_SetUpArray(s_busGpio, ARRAY_SIZE(s_busGpio));
     return Stm32BootClient::ErrorCode::OK;
 }
 /*!
@@ -111,6 +110,7 @@ Stm32BootClient::ErrorCode Stm32BootLowIo::flush() {
  * @param _level true - hight level, false - low level
  */
 void Stm32BootLowIo::setResetLine( bool _level ) {
+    GPIO_SetUpArray(s_busGpio, ARRAY_SIZE(s_busGpio));
     GPIO_WritePinValue(s_busGpio[getCurrentBusIdx() * 2], _level ? 1 : 0);
 }
 /*!
@@ -121,6 +121,7 @@ void Stm32BootLowIo::setResetLine( bool _level ) {
  * @param _level true - high level, false - low level;
  */
 void Stm32BootLowIo::setBootLine( bool _level ) {
+    GPIO_SetUpArray(s_busGpio, ARRAY_SIZE(s_busGpio));
     GPIO_WritePinValue(s_busGpio[getCurrentBusIdx() * 2 + 1], _level ? 1 : 0);
 }
 /*!

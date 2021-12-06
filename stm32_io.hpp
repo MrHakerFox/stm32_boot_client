@@ -21,6 +21,11 @@ public:
     static void delay( uint32_t _delay );
     static void setSerialBus( Bus _code );
     static int getCurrentBusIdx();
+    static void reset() {
+        setResetLine(false);
+        delayMs(10); // no, its not a magic, it's physics!
+        setResetLine(true);
+    }
 protected:
 private:
     static Bus m_bus;
