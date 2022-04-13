@@ -383,6 +383,7 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandReadMemory( void * _dst, uint
     }
     return err;
 }
+// TODO doesn't run uc(((( Using reset instead
 Stm32BootClient::ErrorCode Stm32BootClient::commandGo( uint32_t _addr ) {
     ErrorCode err = commandGenericSend(Command::Go);
     if (err == ErrorCode::ACK_OK) {
@@ -531,15 +532,16 @@ Stm32BootClient::ErrorCode Stm32BootClient::commandExtendedErase( const uint16_t
 }
 Stm32BootClient::ErrorCode Stm32BootClient::commandReadoutUnprotect() {
     auto err = commandGenericSend(Command::ReadoutUnprotect);
-    if (err != ErrorCode::OK)
+    if (err != ErrorCode::ACK_OK)
         return err;
     uint8_t ack;
     size_t rd;
-    while (( err = Stm32BootLowIo::read(&ack, sizeof( ack ), &rd) ) == ErrorCode::OK) {
-        if (rd == sizeof( ack ) && ack == ACK_RESP_CODE)
-            break;
+    while (1) {
+        err = Stm32BootLowIo::read(&ack, sizeof( ack ), &rd);
+        if (err == ErrorCode::OK && rd == sizeof( ack )) {
+            return ( ack == ACK_RESP_CODE ) ?  ErrorCode::OK : ErrorCode::FAILED;
+        }
     }
-    return err;
 }
 Stm32BootClient::ErrorCode Stm32BootClient::genericSendAddr( uint32_t _addr ) {
     ErrorCode err;
@@ -579,6 +581,7 @@ Stm32BootClient::ErrorCode Stm32BootClient::readMcuSpecificInfo( uint16_t _chipi
         if (descr.blRamBegin == 0xffffffff)
             err = ErrorCode::UNKNOWN_MCU;
         else {
+            _info.flashSize = 0; // upper two bytest are not used in commandReadMemory and can contain any garbage
             err = commandReadMemory(&_info.flashSize, descr.flashSizeReg, 2);
             if (err == ErrorCode::OK) {
                 _info.flashSize *= 1024; /// as size of the device expressed in Kbytes

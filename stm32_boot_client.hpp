@@ -15,7 +15,8 @@ public:
         uint32_t flashSizeReg;
         uint16_t flashPageSize;
         bool rdpActive2Nack;    /// true if two nacks are sent when RDP is active
-    }McuDescription_t;
+    }
+    McuDescription_t;
     enum class McuType : uint8_t {
         Unknown = 0xff,
         Stm32F05xxx_F030x8 = 0x00,
@@ -55,23 +56,23 @@ public:
     static const uint16_t EXT_BANK2_ERASE = 0xfffd;
     typedef __packed struct CommandGetResponse_t {
     public:
-        void getBootVer( uint8_t &_high, uint8_t &_low ) {
-            _high = static_cast<uint8_t>(bootver >> 4);
+        void getBootVer( uint8_t &_high, uint8_t &_low ){
+            _high = static_cast<uint8_t>( bootver >> 4 );
             _low = bootver & 0x0f;
         }
-        std::string getBootVerStr() {
+        std::string getBootVerStr( ){
             uint8_t high, low;
-            getBootVer(high, low);
-            return std::to_string(high) + "." + std::to_string(low);
+            getBootVer( high, low );
+            return std::to_string( high )+ "." + std::to_string( low );
         }
-        size_t getCommandListSize() const {
+        size_t getCommandListSize( )const {
             return sizeof( supportedCommands );
         }
-        Command getCommand( size_t _idx ) {
+        Command getCommand( size_t _idx ){
             //    configASSERT(_idx < sizeof( supportedCommands ));
             Command result = Command::Get;
-            if (_idx < sizeof( supportedCommands )) {
-                result = static_cast<Command>(supportedCommands[_idx]);
+            if ( _idx < sizeof( supportedCommands ) ){
+                result = static_cast<Command>( supportedCommands[_idx] );
             }
             return result;
         }
@@ -79,36 +80,40 @@ public:
         uint8_t bytenum;
         uint8_t bootver;
         uint8_t supportedCommands[11];
-    }CommandGetResponse_t;
+    }
+    CommandGetResponse_t;
     typedef __packed struct CommandGvRpsResponse_t {
     public:
-        void getBootVer( uint8_t &_high, uint8_t &_low ) {
-            _high = static_cast<uint8_t>(bootver >> 4);
+        void getBootVer( uint8_t &_high, uint8_t &_low ){
+            _high = static_cast<uint8_t>( bootver >> 4 );
             _low = bootver & 0x0f;
         }
-        std::string getBootVerStr() {
+        std::string getBootVerStr( ){
             uint8_t high, low;
-            getBootVer(high, low);
-            return std::to_string(high) + "." + std::to_string(low);
+            getBootVer( high, low );
+            return std::to_string( high )+ "." + std::to_string( low );
         }
     protected:
         uint8_t bootver;
         uint8_t opt1;
         uint8_t opt2;
-    }CommandGvRpsResponse;
+    }
+    CommandGvRpsResponse;
     typedef __packed struct CommandGetIdResponse_t {
     public:
-        uint16_t getId() const {
-            return static_cast<uint16_t>(( pid1 << 8 ) | pid2);
+        uint16_t getId( )const {
+            return static_cast<uint16_t>( ( pid1 << 8 )| pid2 );
         }
     private:
         uint8_t numbytes;
         uint8_t pid1;
         uint8_t pid2;
-    }CommandGetIdResponse_t;
+    }
+    CommandGetIdResponse_t;
     typedef __packed struct McuSpecificInfo_t {
         uint32_t flashSize;     /// in bytes
-    }McuSpecificInfo_t;
+    }
+    McuSpecificInfo_t;
     static Stm32BootClient * instance() {
         static Stm32BootClient * __self = new Stm32BootClient;
         return __self;
@@ -133,6 +138,7 @@ public:
     static ErrorCode readMemory( void * _dst, uint32_t _addr, size_t _size );
     static ErrorCode writeMemory( const void * _src, uint32_t _addr, size_t _size );
     static ErrorCode eraseAllMemory();
+    static void ResetMCU();
 protected:
 private:
     static const McuDescription_t m_mcuDescription[];
@@ -141,7 +147,6 @@ private:
     static const uint8_t NACK_RESP_CODE = 0x1f;
     static const size_t BOOT_READY_DELAY = 777;
 
-    static void ResetMCU();
     static uint8_t calculateXor( const uint8_t * _src, size_t _size );
     static ErrorCode commandGenericSend( Command _cmd );
     static ErrorCode genericSendAddr( uint32_t _addr );
