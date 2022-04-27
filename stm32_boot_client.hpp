@@ -145,6 +145,7 @@ private:
     static const uint8_t ACK_ASK_CODE = 0x7f;
     static const uint8_t ACK_RESP_CODE = 0x79;
     static const uint8_t NACK_RESP_CODE = 0x1f;
+    static const auto MAX_WRITE_BLOCK_SIZE = 256;
     static const size_t BOOT_READY_DELAY = 777;
 
     static uint8_t calculateXor( const uint8_t * _src, size_t _size );
